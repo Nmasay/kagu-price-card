@@ -13,7 +13,7 @@
         <div class="logo-container">
             <img src="images/logo.png" alt="サイトロゴ" class="site-logo">
         </div>
-        <h1 class="site-title"></h1>
+        <h1 class="site-title">家具プライス</h1>
     </header>
     <div class="container">
         <div id="preview-container">
@@ -56,7 +56,10 @@
             </div>
             <div class="form-group">
                 <label for="notes">備考:</label>
-                <textarea id="notes" rows="2" placeholder="備考"></textarea>
+                <div class="notes-input-container"> <!-- ★ 新しいコンテナを追加 -->
+                    <textarea id="notes" rows="2" placeholder="備考"></textarea>
+                    <div id="notes-history-list" class="history-list" style="display: none;"></div>
+                </div>
             </div>
             <div class="form-group">
                 <label for="notes-font-size">備考 文字サイズ (px):</label>

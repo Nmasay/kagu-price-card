@@ -358,3 +358,25 @@ button:hover {
         white-space: nowrap !important; /* 改行しない設定を維持 */
     }
 }
+/* /Users/masayan/Documents/programming/Gemini/kagu-card/style.css に追加 */
+.notes-input-container {
+    position: relative; /* 履歴リストの位置決めの基準にする */
+}
+
+/* 既存の .history-list のスタイルが以下のような設定になっているか確認してください。
+   もしなければ、追加または調整してください。
+   特に width, left, right, top, position あたりが重要です。 */
+.history-list {
+    position: absolute;
+    top: 100%; /* 入力欄のすぐ下に表示 */
+    left: 0;
+    right: 0; /* これで親コンテナの幅いっぱいに広がる */
+    /* もしくは width: 100%; でも可 */
+    background-color: white;
+    border: 1px solid #ccc;
+    z-index: 1000;
+    max-height: 150px; /* 必要に応じて調整 */
+    overflow-y: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    /* display: none; はJavaScriptで制御 */
+}

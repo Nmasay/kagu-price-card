@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const titleFontSizeValueSpan = document.getElementById('title-font-size-value');
     const conditionSelect = document.getElementById('condition');
     const notesTextarea = document.getElementById('notes');
+    const notesHistoryListDiv = document.getElementById('notes-history-list'); // 備考履歴リスト表示用div
+    const notesHistoryKey = 'productNotesHistory'; // 備考履歴のlocalStorageキー
     const notesFontSizeInput = document.getElementById('notes-font-size');
     const notesFontSizeValueSpan = document.getElementById('notes-font-size-value');
     const priceInput = document.getElementById('price');
@@ -205,6 +207,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // --- 備考履歴の読み込みとリスト表示 ---
+    function loadNotesHistory() {
+        if (!notesHistoryListDiv) return; // 要素がなければ何もしない
+        const history = JSON.parse(localStorage.getItem(notesHistoryKey)) || [];
+        notesHistoryListDiv.innerHTML = ''; // リストをクリア
+
+        // 入力中のテキストで履歴をフィルタリング
+        const filterText = notesTextarea.value.trim().toLowerCase();
+        const filteredHistory = history.filter(note => note.toLowerCase().includes(filterText));
+
+        filteredHistory.forEach(note => {
+            const itemDiv = document.createElement('div');
+            itemDiv.classList.add('history-item'); // CSSクラスを適用
+
+            const noteSpan = document.createElement('span');
+            noteSpan.textContent = note;
+            // 項目クリックで入力欄に備考を設定し、リストを閉じる
+            noteSpan.addEventListener('click', () => {
+                notesTextarea.value = note;
+                notesHistoryListDiv.style.display = 'none';
+                updatePreview();
+            });
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerHTML = '&times;'; // バツ印 (×)
+            deleteButton.title = '履歴から削除';
+            deleteButton.addEventListener('click', (event) => {
+                event.stopPropagation(); // 親要素(itemDiv)へのクリックイベント伝播を阻止
+                removeNotesFromHistory(note);
+            });
+
+            itemDiv.appendChild(noteSpan);
+            itemDiv.appendChild(deleteButton);
+            notesHistoryListDiv.appendChild(itemDiv);
+        });
+
+        notesHistoryListDiv.style.display = filteredHistory.length > 0 ? 'block' : 'none';
+    }
+
+    // --- 備考履歴から削除 ---
+    function removeNotesFromHistory(noteToRemove) {
+        let history = JSON.parse(localStorage.getItem(notesHistoryKey)) || [];
+        history = history.filter(note => note !== noteToRemove);
+        localStorage.setItem(notesHistoryKey, JSON.stringify(history));
+        if (notesHistoryListDiv) loadNotesHistory(); // リスト表示を更新
+    }
+
+    // --- 備考履歴への追加 ---
+    function addNotesToHistory(note) {
+        if (!note) return; // 空文字は追加しない
+        let history = JSON.parse(localStorage.getItem(notesHistoryKey)) || [];
+        // 重複チェック
+        if (!history.includes(note)) {
+            history.unshift(note); // 新しいものを先頭に追加
+            // 必要であれば履歴の最大件数を制限する (例: 最新100件)
+            // history = history.slice(0, 100);
+            localStorage.setItem(notesHistoryKey, JSON.stringify(history));
+        }
+    }
+
     // --- イベントリスナーの設定 ---
     // タイトル入力時に履歴リストをフィルタリング表示 & プレビュー更新
     titleInput.addEventListener('input', () => {
@@ -213,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     // タイトル入力欄フォーカス時に履歴リスト表示
     titleInput.addEventListener('focus', () => {
-        loadTitleHistory();
+        if (titleHistoryListDiv) loadTitleHistory();
     });
 
     // タイトル入力欄からフォーカスが外れたら履歴に追加
@@ -221,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 少し遅延させて、リスト内のクリック操作を可能にする
         setTimeout(() => {
             // リストが非表示の場合（＝リスト項目がクリックされなかった場合）のみ履歴追加
-            if (getComputedStyle(titleHistoryListDiv).display === 'none') {
+            if (titleHistoryListDiv && getComputedStyle(titleHistoryListDiv).display === 'none') {
                  addTitleToHistory(titleInput.value.trim());
             }
         }, 150); // 150ミリ秒待つ (リスト項目のクリックイベントが先に処理されるように)
@@ -229,8 +291,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ドキュメント全体をクリックしたときにリストを閉じる（入力欄とリスト以外がクリックされた場合）
     document.addEventListener('click', (event) => {
-        if (!titleInput.contains(event.target) && !titleHistoryListDiv.contains(event.target)) {
+        if (titleHistoryListDiv && !titleInput.contains(event.target) && !titleHistoryListDiv.contains(event.target)) {
             titleHistoryListDiv.style.display = 'none';
+        }
+        if (notesHistoryListDiv && !notesTextarea.contains(event.target) && !notesHistoryListDiv.contains(event.target)) {
+            notesHistoryListDiv.style.display = 'none';
         }
     });
 
@@ -239,7 +304,25 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePreview();
     });
     conditionSelect.addEventListener('change', updatePreview);
-    notesTextarea.addEventListener('input', updatePreview);
+
+    // 備考入力時に履歴リストをフィルタリング表示 & プレビュー更新
+    notesTextarea.addEventListener('input', () => {
+        if (notesHistoryListDiv) loadNotesHistory();
+        updatePreview();
+    });
+    // 備考入力欄フォーカス時に履歴リスト表示
+    notesTextarea.addEventListener('focus', () => {
+        if (notesHistoryListDiv) loadNotesHistory();
+    });
+    // 備考入力欄からフォーカスが外れたら履歴に追加
+    notesTextarea.addEventListener('blur', () => {
+        setTimeout(() => {
+            if (notesHistoryListDiv && getComputedStyle(notesHistoryListDiv).display === 'none') {
+                 addNotesToHistory(notesTextarea.value.trim());
+            }
+        }, 150);
+    });
+
     // ★ 備考文字サイズスライダーのイベントリスナー
     notesFontSizeInput.addEventListener('input', () => {
         notesFontSizeValueSpan.textContent = notesFontSizeInput.value; // ★ 数値表示を更新
