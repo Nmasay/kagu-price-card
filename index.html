@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プライスカード作成ツール</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- JsBarcodeライブラリをCDNから読み込み -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <div class="logo-container">
+            <img src="images/logo.png" alt="サイトロゴ" class="site-logo">
+        </div>
+        <h1 class="site-title"></h1>
+    </header>
+    <div class="container">
+        <div id="preview-container">
+            <!-- プレビューエリア -->
+            <div id="price-card">
+                <div class="card-row title-row" id="preview-title">商品タイトル</div>
+                <div class="card-row condition-row" id="preview-condition">中古　現状渡し</div>
+                <div class="card-row notes-row" id="preview-notes"></div>
+                <div class="card-row price-row" id="preview-price">¥1,000</div>
+                <svg id="barcode"></svg>
+                <div id="timestamp"></div>
+            </div>
+        </div>
+
+    
+
+        <!-- <h2>入力フォーム</h2> -->
+        <form id="input-form">
+            <div class="form-group">
+                <label for="title">商品タイトル:</label>
+                <!-- list属性とdatalistを削除 -->
+                <div class="title-input-container"> <!-- ★ 履歴リストの位置決め用コンテナ -->
+                    <input type="text" id="title" name="title" placeholder="商品タイトル" autocomplete="off"> <!-- autocompleteをoffに -->
+                    <div id="title-history-list" class="history-list"></div> <!-- ★ 履歴リスト表示用div -->
+                </div>
+
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label for="title-font-size">タイトル文字サイズ (px):</label>
+                <input type="range" id="title-font-size" value="50" min="10" max="100">
+                <span id="title-font-size-value">50</span> px
+            </div>
+            <div class="form-group">
+                <label for="condition">状態:</label>
+                <select id="condition">
+                    <option value="中古">中古　現状渡し</option>
+                    <option value="未使用">未使用　現状渡し</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="notes">備考:</label>
+                <textarea id="notes" rows="2" placeholder="備考"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="notes-font-size">備考 文字サイズ (px):</label>
+                <input type="range" id="notes-font-size" value="20" min="8" max="30">
+                <span id="notes-font-size-value">14</span> px
+            </div>
+            <div class="form-group">
+                <label for="price">金額 (税込):</label>
+                <input type="number" id="price" placeholder="税込金額を入力"value="" min="0">
+            </div>
+            <button type="button" id="print-button">印刷</button>
+
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
