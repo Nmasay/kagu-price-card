@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const titleInput = document.getElementById('title');
+    const titleInput = document.getElementById('product-title');
     const titleFontSizeInput = document.getElementById('title-font-size');
     const titleFontSizeValueSpan = document.getElementById('title-font-size-value');
     const conditionSelect = document.getElementById('condition');
@@ -44,9 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 状態に応じてバーコードのプレフィックスを変更
         if (condition === '中古') {
-            baseNumberStr = 27075000000; // 中古品用プレフィックス
+            baseNumberStr = 20438000000; // 中古品用プレフィックス
         } else { // 未使用
-            baseNumberStr = 27074000000; // 未使用品用プレフィックス
+            baseNumberStr = 20451000000; // 未使用品用プレフィックス
         }
 
         // BigInt を使って大きな数値を扱う
@@ -117,8 +117,48 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- プレビュー更新関数 ---
     function updatePreview() {
         // タイトル
+        const isTitleMultiLine = titleInput.value.includes('\n');
+        let titleFontSize;
+        // タイトルが2行以上の場合、フォントサイズを最大46pxに制限
+        if (isTitleMultiLine) {
+            titleFontSize = 45;
+        }else{
+            titleFontSize = parseInt(titleFontSizeInput.value, 10);
+        }
+
+        titleFontSizeInput.value = titleFontSize; // スライダーの値を更新
+        titleFontSizeValueSpan.textContent = titleFontSize; // スライダー横の数値を更新
         previewTitle.textContent = titleInput.value || '商品タイトル';
-        previewTitle.style.fontSize = titleFontSizeInput.value + 'px';
+        previewTitle.style.fontSize = titleFontSize + 'px';
+
+        // --- ここから追加 ---
+        // タイトル要素の最小の高さを設定し、後続要素のズレを防ぐ
+        // スライダーのmax属性値を取得 (HTMLに設定されている前提)
+        // <input type="range" id="title-font-size" ... max="60"> のような想定
+        const maxAttr = titleFontSizeInput.getAttribute('max');
+        const maxSingleLineFontSize = maxAttr ? parseFloat(maxAttr) : 60; // デフォルト60px
+
+        // CSSでのline-heightを仮定 (実際の値に合わせて調整が必要)
+        // 一般的なブラウザのデフォルト line-height は normal (おおよそフォントサイズの1.2倍)
+        // もしCSSで previewTitle に line-height が具体的に指定されていれば、その値を考慮するのがベストです。
+        // ここでは1.2を仮定します。
+        const assumedLineHeightRatio = 1.2;
+
+        // 単一行の場合の最大高さを計算
+        const singleLineMaxHeight = maxSingleLineFontSize * assumedLineHeightRatio;
+
+        // 複数行の場合のフォントサイズは45px（現在のロジックより）
+        const multiLineBaseFontSize = 45;
+        // 複数行の場合の最大行数を仮定 (例: 2行)。この値はデザインや要件によって調整してください。
+        const maxLinesForMultiLine = 2;
+        const multiLineMaxHeight = multiLineBaseFontSize * assumedLineHeightRatio * maxLinesForMultiLine;
+
+        // 設定するmin-heightは、単一行最大と複数行最大の大きい方
+        const calculatedMinHeight = Math.max(singleLineMaxHeight, multiLineMaxHeight);
+        previewTitle.style.minHeight = calculatedMinHeight + 'px';
+        // これにより、フォントサイズが小さくなってもタイトルエリアの高さは維持され、
+        // テキストはエリアの上部に配置される（デフォルトのvertical-align）。
+        // --- ここまで追加 ---
 
         // 状態
         const selectedOption = conditionSelect.options[conditionSelect.selectedIndex];
