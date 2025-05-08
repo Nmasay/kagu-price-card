@@ -238,6 +238,61 @@ h1, h2 {
     resize: vertical; /* 縦方向のみリサイズ可能 */
 }
 
+/* --- スライダーのカスタムスタイル --- */
+input[type="range"] {
+    -webkit-appearance: none; /* Safari, Chrome */
+    appearance: none;
+    width: 70%; /* 幅を少し調整 */
+    height: 8px; /* トラックの高さ */
+    background: #e0e0e0; /* トラックの背景色 (薄いグレー) */
+    outline: none;
+    opacity: 0.9;
+    -webkit-transition: opacity .15s ease-in-out;
+    transition: opacity .15s ease-in-out;
+    border-radius: 4px; /* トラックの角を丸く */
+    margin: 8px 0; /* 上下に少しマージン */
+}
+
+input[type="range"]:hover {
+    opacity: 1;
+}
+
+/* スライダーのつまみ (thumb) - WebKit系 (Chrome, Safari, Edge Chromium) */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px; /* つまみの幅 */
+    height: 18px; /* つまみの高さ */
+    background: #007bff; /* つまみの背景色 (ボタンと同じ青) */
+    cursor: pointer;
+    border-radius: 50%; /* 円形 */
+    border: 2px solid #fff; /* 白い枠線 */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* 軽い影 */
+}
+
+/* スライダーのつまみ (thumb) - Firefox */
+input[type="range"]::-moz-range-thumb {
+    width: 14px; /* Firefoxではborderを含まないサイズで指定 */
+    height: 14px;
+    background: #007bff;
+    cursor: pointer;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* スライダーの横に表示される数値 (例: <span id="title-font-size-value">) のスタイル調整 */
+.form-group .font-size-value {
+    display: inline-block;
+    min-width: 2.5em; /* 数値表示エリアの最小幅を確保 */
+    text-align: right;
+    padding-left: 10px;
+    font-weight: bold;
+    color: #333;
+}
+/* --------------------------------- */
+
+
 button {
     background-color: #007bff;
     color: white;
@@ -362,6 +417,13 @@ button:hover {
         /* font-size: 72px !important; */ /* 必要なら */
         white-space: nowrap !important; /* 改行しない設定を維持 */
     }
+    #check-section, #check-section .check-item {
+        visibility: visible !important;
+    }
+    #check-section {
+        font-size: 10pt !important; /* 印刷時のフォントサイズ */
+        line-height: 1.2 !important; /* 印刷時の行間 */
+    }
 }
 /* /Users/masayan/Documents/programming/Gemini/kagu-card/style.css に追加 */
 .notes-input-container {
@@ -403,13 +465,4 @@ button:hover {
     white-space: nowrap; /* 折り返さない */
 }
 
-/* 印刷時のスタイル */
-@media print {
-    #check-section, #check-section .check-item {
-        visibility: visible !important;
-    }
-    #check-section {
-        font-size: 10pt !important; /* 印刷時のフォントサイズ */
-        line-height: 1.2 !important; /* 印刷時の行間 */
-    }
-}
+
