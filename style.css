@@ -172,7 +172,7 @@ h1, h2 {
     height: 1.6cm;
     color: blue;
     justify-content: flex-start; /* 左寄せ */
-    font-size: 20px; /* 初期値 (JSで変更可能) */
+    font-size: 30px; /* 初期値 (JSで変更可能) */
     align-items: flex-start; /* 上寄せ */
     padding-top: 5px 10px; /* 上部に少しパディング */
     white-space: pre-wrap; /* 改行を反映 */
@@ -203,7 +203,7 @@ h1, h2 {
     bottom: 20px; /* 下からの位置 */
     right: 5px; /* 右からの位置 */
     font-size: 10pt;
-    color: #555;
+    color: #000000;
     z-index: 10;
 }
 
