@@ -47,7 +47,6 @@ body {
     display: flex; /* 子要素 (#preview-container, #input-form) を横並びにする */
     gap: 30px; /* プレビューとフォームの間の隙間 (値は調整してください) */
     align-items: center; /* 上端揃えにする (中央揃えなら center,充魔を揃えるなら flex-start*/
-    margin: 50px 20px auto;
     margin-top: 50px; /* ヘッダーとの間のマージンを少し広げる */
     margin-bottom: 20px; /* 下部にもマージンを追加 */
 }
