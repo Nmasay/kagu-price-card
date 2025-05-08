@@ -356,6 +356,7 @@ button:hover {
         /* color: blue !important; */ /* 色を維持する場合 */
         white-space: pre-wrap !important; /* 改行維持 */
         word-break: break-all !important; /* 折り返し維持 */
+        padding-top: 10px;
     }
     .price-row {
         /* font-size: 72px !important; */ /* 必要なら */
