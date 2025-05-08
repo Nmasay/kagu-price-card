@@ -99,6 +99,7 @@ h1, h2 {
     white-space: pre-wrap;  /* テキストエリアの改行を反映 */
     word-break: break-word; /* 長い単語も折り返す */
     line-height: 1.1;
+    padding-top: 20px; /*タイトル上に余白*/
     overflow: visible;
 }
 
@@ -390,7 +391,7 @@ button:hover {
     position: absolute;
     bottom: 38px; /* タイムスタンプの上、4行分のスペースを考慮して調整 */
     right: 5px;   /* タイムスタンプと同じ右端揃え */
-    font-size: 15pt; /* 小さめのフォント */
+    font-size: 10pt; /* 小さめのフォント */
     color: #333;
     z-index: 10;
     line-height: 1.3; /* 行間 */
@@ -408,7 +409,7 @@ button:hover {
         visibility: visible !important;
     }
     #check-section {
-        font-size: 7pt !important; /* 印刷時のフォントサイズ */
+        font-size: 10pt !important; /* 印刷時のフォントサイズ */
         line-height: 1.2 !important; /* 印刷時の行間 */
     }
 }
