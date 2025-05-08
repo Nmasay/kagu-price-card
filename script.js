@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const singleLineMaxHeight = maxSingleLineFontSize * assumedLineHeightRatio;
 
         // 複数行の場合のフォントサイズは45px（現在のロジックより）
-        const multiLineBaseFontSize = 45;
+        const multiLineBaseFontSize = 40;
         // 複数行の場合の最大行数を仮定 (例: 2行)。この値はデザインや要件によって調整してください。
         const maxLinesForMultiLine = 2;
         const multiLineMaxHeight = multiLineBaseFontSize * assumedLineHeightRatio * maxLinesForMultiLine;
