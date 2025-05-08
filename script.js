@@ -386,6 +386,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 初期表示 ---
+    // 備考フォントサイズスライダーの初期値を30に設定
+    notesFontSizeInput.value = '30';
+    if (notesFontSizeValueSpan) { // スライダー横の数値表示も更新
+        notesFontSizeValueSpan.textContent = '30';
+    }
     updatePreview();
 
     // ウィンドウリサイズ時にも金額フォントサイズを再調整
