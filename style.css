@@ -390,7 +390,7 @@ button:hover {
     position: absolute;
     bottom: 38px; /* タイムスタンプの上、4行分のスペースを考慮して調整 */
     right: 5px;   /* タイムスタンプと同じ右端揃え */
-    font-size: 8pt; /* 小さめのフォント */
+    font-size: 15pt; /* 小さめのフォント */
     color: #333;
     z-index: 10;
     line-height: 1.3; /* 行間 */
