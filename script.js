@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const notesFontSizeInput = document.getElementById('notes-font-size');
     const notesFontSizeValueSpan = document.getElementById('notes-font-size-value');
     const priceInput = document.getElementById('price');
+    const deliveryOptionsSelect = document.getElementById('delivery-options'); // ★ 追加: 配送オプションのセレクト要素
     const printButton = document.getElementById('print-button');
 
     const previewTitle = document.getElementById('preview-title');
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewNotes = document.getElementById('preview-notes');
     const previewPrice = document.getElementById('preview-price'); // 金額表示用
     const barcodeSvg = document.getElementById('barcode');
+    const previewDeliveryOptions = document.getElementById('preview-delivery-options'); // ★ 追加: 配送オプションプレビュー表示用
     const timestampDiv = document.getElementById('timestamp');
     const priceRowDiv = document.querySelector('.price-row'); // 金額表示エリア (フォントサイズ調整用)
     const titleHistoryListDiv = document.getElementById('title-history-list'); // 履歴リスト表示用div
@@ -167,6 +169,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // 備考
         previewNotes.textContent = notesTextarea.value || '';
         previewNotes.style.fontSize = notesFontSizeInput.value + 'px';
+
+        // ★ 追加: 配送オプション
+        if (deliveryOptionsSelect && previewDeliveryOptions) {
+            const selectedDeliveryOption = deliveryOptionsSelect.options[deliveryOptionsSelect.selectedIndex];
+            previewDeliveryOptions.textContent = selectedDeliveryOption ? selectedDeliveryOption.text : '';
+        }
 
         // 金額
         const priceValue = parseInt(priceInput.value, 10);
@@ -369,6 +377,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePreview(); // ★ プレビューも更新
     });
     priceInput.addEventListener('input', updatePreview);
+    // ★ 追加: 配送オプションの変更時にもプレビューを更新
+    if (deliveryOptionsSelect) {
+        deliveryOptionsSelect.addEventListener('change', updatePreview);
+    }
+
 
     // 印刷ボタン
     printButton.addEventListener('click', () => {

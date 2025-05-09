@@ -179,11 +179,29 @@ h1, h2 {
     word-break: break-all; /* 長い単語も折り返す */
 }
 
+
+#preview-delivery-options {
+    
+    /* height: 1.6cm; /* 必要に応じて高さを指定 */
+    color: #ff0000; /* 文字色 (例: 少し暗めのグレー) */
+    justify-content: flex-start; /* 左寄せ */
+    font-size: 18px; /* フォントサイズ (備考欄より少し小さめなど調整) */
+    align-items: flex-start; /* 上寄せ */
+    padding: 5px 10px; /* 上下左右のパディング */
+    white-space: pre-wrap; /* 改行を反映 (長い選択肢の場合) */
+    word-break: break-word; /* 長い単語も折り返す */
+    /* 必要であれば、他の .card-row の共通スタイルも確認 */
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+}
+
 .price-row {
     height: 2.5cm;
     font-weight: bold;
     font-size: 80px; /* 初期値 (JSで動的に調整) */
     justify-content:  flex-start; /* 中央揃え */
+    padding-bottom: 35px;
     white-space: nowrap; /* 金額は改行しない */
 }
 

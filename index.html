@@ -22,9 +22,10 @@
                 <div class="card-row title-row" id="preview-title">商品タイトル</div>
                 <div class="card-row condition-row" id="preview-condition">中古　現状渡し</div>
                 <div class="card-row notes-row" id="preview-notes"></div>
+                <div class="card-row" id="preview-delivery-options"></div>
                 <div class="card-row price-row" id="preview-price">¥1,000</div>
                 <svg id="barcode"></svg>
-                <!-- index.html の #price-card 内、#barcode と #timestamp の間に追加 -->
+        
                 <div id="check-section">
                     <div class="check-item">接客者: ＿＿＿＿＿</div>
                     <div class="check-item">売約:　　 □</div>
@@ -75,6 +76,14 @@
                 <label for="notes-font-size">備考 文字サイズ (px):</label>
                 <input type="range" id="notes-font-size" value="20" min="8" max="30">
                 <span id="notes-font-size-value">14</span> px
+            </div>
+            <div class="form-group">
+                <label for="delivery-options">配送オプション:</label>
+                <select id="delivery-options">
+                    <option value="預かり可能(１週間)又は配達可能(有料)">預かり可能(１週間)又は配達可能(有料)</option>
+                    <option value="配達不可(預かりのみ可能)">配達不可(預かりのみ可能)</option>
+                    <option value="本日もお持ち帰りのみ可能">本日お持ち帰りのみ可能</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="price">金額 (税込):</label>
