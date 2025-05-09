@@ -201,6 +201,7 @@ h1, h2 {
     font-weight: bold;
     font-size: 80px; /* 初期値 (JSで動的に調整) */
     justify-content:  flex-start; /* 中央揃え */
+    padding-left: 30px;
     padding-bottom: 35px;
     white-space: nowrap; /* 金額は改行しない */
 }
