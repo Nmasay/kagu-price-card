@@ -402,6 +402,17 @@ button:hover {
         visibility: visible !important;
     }
 
+    /* 配達オプションの表示を確実にする */
+    #preview-delivery-options {
+        visibility: visible !important;
+        display: flex !important; /* 通常表示時の display プロパティを維持 */
+        font-size: 10pt !important; /* 印刷時のフォントサイズ (例: 備考やチェック欄と合わせる) */
+        color: #ff0000 !important; /* 印刷時は黒文字に */
+        align-items: flex-start !important; /* 上寄せ */
+        justify-content: flex-start !important; /* 左寄せ */
+        padding: 1mm 2mm !important; /* 印刷時のパディング調整 (例: 上下1mm, 左右2mm) */
+        min-height: 0.5cm !important; /* 最低限の高さを確保 (必要に応じて調整) */
+    }
     /* バーコードとタイムスタンプの位置を維持 */
     #barcode, #timestamp {
         position: absolute !important; /* 絶対配置を維持 */
@@ -482,5 +493,3 @@ button:hover {
     margin-bottom: 1px; /* 各項目の下のマージン */
     white-space: nowrap; /* 折り返さない */
 }
-
-
