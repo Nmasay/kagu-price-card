@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 金額のフォントサイズ調整関数 ---
     function adjustPriceFontSize() {
         const containerWidth = priceRowDiv.clientWidth - 10; // 左右のpadding分を考慮
-        let fontSize = 60; // 開始フォントサイズ (大きめから始める)
+        let fontSize = 70; // 開始フォントサイズ (大きめから始める)
         previewPrice.style.fontSize = fontSize + 'px';
 
         // 要素の幅がコンテナ幅を超える限りフォントサイズを小さくする
