@@ -407,7 +407,7 @@ button:hover {
     #preview-delivery-options {
         visibility: visible !important;
         display: flex !important; /* 通常表示時の display プロパティを維持 */
-        font-size: 10pt !important; /* 印刷時のフォントサイズ (例: 備考やチェック欄と合わせる) */
+        font-size: 20pt !important; /* 印刷時のフォントサイズ (例: 備考やチェック欄と合わせる) */
         color: #ff0000 !important; /* 印刷時は黒文字に */
         align-items: flex-start !important; /* 上寄せ */
         justify-content: flex-start !important; /* 左寄せ */
@@ -427,7 +427,7 @@ button:hover {
     #timestamp {
         bottom: 20px !important;
         right: 10px !important;
-        font-size: 8pt !important; /* フォントサイズ維持 */
+        font-size: 10pt !important; /* フォントサイズ維持 */
         color: #555 !important; /* 色を維持 */
     }
 
