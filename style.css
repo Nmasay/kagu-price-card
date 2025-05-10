@@ -185,7 +185,7 @@ h1, h2 {
     /* height: 1.6cm; /* 必要に応じて高さを指定 */
     color: #ff0000; /* 文字色 (例: 少し暗めのグレー) */
     justify-content: flex-start; /* 左寄せ */
-    font-size: 18px; /* フォントサイズ (備考欄より少し小さめなど調整) */
+    font-size: 20px; /* フォントサイズ (備考欄より少し小さめなど調整) */
     align-items: flex-start; /* 上寄せ */
     padding: 5px 10px; /* 上下左右のパディング */
     white-space: pre-wrap; /* 改行を反映 (長い選択肢の場合) */
@@ -220,7 +220,7 @@ h1, h2 {
 #timestamp {
     position: absolute;
     bottom: 20px; /* 下からの位置 */
-    right: 5px; /* 右からの位置 */
+    right: 10px; /* 右からの位置 */
     font-size: 10pt;
     color: #000000;
     z-index: 10;
@@ -426,7 +426,7 @@ button:hover {
     }
     #timestamp {
         bottom: 20px !important;
-        right: 5px !important;
+        right: 10px !important;
         font-size: 8pt !important; /* フォントサイズ維持 */
         color: #555 !important; /* 色を維持 */
     }
