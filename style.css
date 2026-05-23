@@ -508,3 +508,35 @@ button:hover {
     margin-bottom: 1px; /* 各項目の下のマージン */
     white-space: nowrap; /* 折り返さない */
 }
+
+/* --- モバイル対応 (レスポンシブデザイン) --- */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column; /* プレビューと入力フォームを縦並びに */
+        margin-top: 20px;
+        padding: 10px;
+        gap: 15px; /* 隙間を少し狭くする */
+    }
+
+    #preview-container {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 0;
+        overflow: hidden; /* はみ出しを隠す */
+        display: flex;
+        justify-content: center; /* カードを中央に配置 */
+    }
+
+    /* モバイル向けにカードを縮小表示 */
+    #price-card {
+        transform: scale(0.62); /* 約62%に縮小 (一般的なスマホ幅に収める) */
+        transform-origin: top center; /* 上部中央を起点に縮小 */
+        margin-bottom: -150px; /* 縮小によって余った下部のスペースを詰める */
+    }
+
+    #input-form {
+        width: 100%;
+        position: relative;
+        z-index: 1; /* フォームが縮小したカードの下に隠れないように手前に配置 */
+    }
+}
