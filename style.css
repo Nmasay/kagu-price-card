@@ -403,6 +403,14 @@ button:hover {
         visibility: visible !important;
     }
 
+    /* カード内の各行の前後や途中で改ページが発生するのを強力に防ぐ */
+    .card-row {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-before: avoid !important;
+        break-before: avoid !important;
+    }
+
     /* 配達オプションの表示を確実にする */
     #preview-delivery-options {
         visibility: visible !important;
@@ -446,6 +454,7 @@ button:hover {
     .price-row {
         /* font-size: 72px !important; */ /* 必要なら */
         white-space: nowrap !important; /* 改行しない設定を維持 */
+        padding-bottom: 5px !important; /* 通常時の35pxだと高さを圧迫するため、印刷時は余白を減らす */
     }
     #check-section, #check-section .check-item {
         visibility: visible !important;
