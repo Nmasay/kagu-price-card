@@ -196,7 +196,7 @@ h1, h2 {
     box-sizing: border-box;
     display: flex;
     position: absolute; /* 行のフローから外し、レイヤーとして重ねる */
-    bottom: 2.8cm; /* 金額行(2.8cm)のすぐ上に配置 */
+    bottom: 3.2cm; /* 金額行の上に配置 (少し上に調整) */
     left: 15px;    /* 左からの余白（必要に応じて調整してください） */
     z-index: 5;   /* 他の行より前面に出す */
 }

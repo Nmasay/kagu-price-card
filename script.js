@@ -47,8 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // 状態に応じてバーコードのプレフィックスを変更
         if (condition === '中古') {
             baseNumberStr = 20438000000; // 中古品用プレフィックス
-        } else { // 未使用
-            baseNumberStr = 20451000000; // 未使用品用プレフィックス
+        } else { // 新品
+            baseNumberStr = 20451000000; // 新品用プレフィックス
         }
 
         // BigInt を使って大きな数値を扱う
