@@ -92,6 +92,7 @@ h1, h2 {
 
 /* 各行の高さとスタイル */
 .title-row {
+    height: 2cm;
     font-size: 50px; /* 初期値 (JSで変更可能) */
     font-weight: bold;
     align-items: flex-start; /* 複数行の場合、上寄せにする */
@@ -194,10 +195,14 @@ h1, h2 {
     width: 100%;
     box-sizing: border-box;
     display: flex;
+    position: absolute; /* 行のフローから外し、レイヤーとして重ねる */
+    bottom: 10px; /* 配置位置は必要に応じて調整してください */
+    left: 10px;   /* 配置位置は必要に応じて調整してください */
+    z-index: 5;   /* 他の行より前面に出す */
 }
 
 .price-row {
-    height: 2.5cm;
+    height: 2.8cm;
     font-weight: bold;
     font-size: 60px; /* 初期値 (JSで動的に調整) */
     justify-content:  flex-start; /* 中央揃え */
