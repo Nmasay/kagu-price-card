@@ -20,42 +20,14 @@
         <h1 class="site-title">家具プライス</h1>
     </header>
     <div class="container">
-        <div id="preview-container">
-            <!-- プレビューエリア -->
-            <div id="price-card" class="price-card-template">
-                <div class="card-row title-row" id="preview-title">商品タイトル</div>
-                <div class="card-row condition-row" id="preview-condition">中古</div>
-                <div class="card-row notes-row" id="preview-notes"></div>
-                <div class="card-row preview-delivery-options" id="preview-delivery-options"></div>
-                <div class="card-row price-row" id="preview-price">¥1,000</div>
-                <svg id="barcode" class="barcode-svg"></svg>
-        
-                <div id="check-section" class="check-section">
-                    <div class="check-item">接客者: ＿＿＿＿＿</div>
-                    <div class="check-item">売約:　　 □</div>
-                    <div class="check-item">持ち帰り: □</div>
-                    <div class="check-item">配達: 　　□</div>
-                    <div class="check-item">日付: 　　/　　</div>
-                </div>
-
-                <div id="timestamp" class="timestamp-div"></div>
-            </div>
-        </div>
-
-    
-
-        <!-- <h2>入力フォーム</h2> -->
+        <!-- 左カラム（元右カラム）：入力フォーム -->
         <form id="input-form">
             <div class="form-group">
                 <label for="title">商品タイトル:</label>
-                <!-- list属性とdatalistを削除 -->
-                <div class="title-input-container"> <!-- ★ 履歴リストの位置決め用コンテナ -->
+                <div class="title-input-container">
                     <textarea id="product-title" name="product-title" rows="2"></textarea>
-                    <!--<input type="text" id="title" name="title" placeholder="商品タイトル" autocomplete="off">  autocompleteをoffに -->
-                    <div id="title-history-list" class="history-list"></div> <!-- ★ 履歴リスト表示用div -->
+                    <div id="title-history-list" class="history-list"></div>
                 </div>
-
-                </datalist>
             </div>
             <div class="form-group">
                 <label for="title-font-size">タイトル文字サイズ (px):</label>
@@ -97,15 +69,40 @@
                 <button type="button" id="add-to-list-button" class="secondary-button">リストに追加</button>
                 <button type="button" id="print-button" class="primary-button">この1枚を印刷</button>
             </div>
-
         </form>
 
-        <div id="print-queue-section" class="queue-section">
-            <h2>印刷待ちリスト (<span id="queue-count">0</span>件)</h2>
-            <ul id="print-queue-list"></ul>
-            <div class="queue-actions">
-                <button type="button" id="batch-print-button" class="primary-button" disabled>すべて印刷</button>
-                <button type="button" id="clear-queue-button" class="danger-button" disabled>リストクリア</button>
+        <!-- 右カラム（元左カラム）：プレビューとリスト -->
+        <div class="preview-column">
+            <div id="preview-container">
+            <!-- プレビューエリア -->
+            <div id="price-card" class="price-card-template">
+                <div class="card-row title-row" id="preview-title">商品タイトル</div>
+                <div class="card-row condition-row" id="preview-condition">中古</div>
+                <div class="card-row notes-row" id="preview-notes"></div>
+                <div class="card-row preview-delivery-options" id="preview-delivery-options"></div>
+                <div class="card-row price-row" id="preview-price">¥1,000</div>
+                <svg id="barcode" class="barcode-svg"></svg>
+        
+                <div id="check-section" class="check-section">
+                    <div class="check-item">接客者: ＿＿＿＿＿</div>
+                    <div class="check-item">売約:　　 □</div>
+                    <div class="check-item">持ち帰り: □</div>
+                    <div class="check-item">配達: 　　□</div>
+                    <div class="check-item">日付: 　　/　　</div>
+                </div>
+
+                <div id="timestamp" class="timestamp-div"></div>
+            </div>
+            </div>
+
+            <!-- 印刷待ちリストエリア -->
+            <div id="print-queue-section" class="queue-section">
+                <h3>印刷待ちリスト (<span id="queue-count">0</span>件)</h3>
+                <div class="queue-actions">
+                    <button type="button" id="batch-print-button" class="action-button primary-button" disabled>すべて印刷</button>
+                    <button type="button" id="clear-queue-button" class="action-button danger-button" disabled>リストをクリア</button>
+                </div>
+                <ul id="print-queue-list"></ul>
             </div>
         </div>
     </div>

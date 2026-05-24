@@ -69,14 +69,20 @@ h1, h2 {
     margin-bottom: 20px;
 }
 
+.preview-column {
+    flex: 0 0 auto; /* 横幅はプレビューのサイズに合わせる（伸びない） */
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
 #preview-container {
-    margin-bottom: 30px;
-    padding: 20px;
-    background-color: #1979ff;
-    border-radius: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
+    background-color: #1979ff;
+    border-radius: 5px;
     flex-shrink: 0;
 }
 
@@ -274,7 +280,8 @@ h1, h2 {
 }
 
 #input-form {
-    flex-grow: 1;
+    flex: 1;
+    max-width: 500px; /* フォームが横に伸びきらないように上限を設定 */
 }
 
 .form-group {
@@ -373,25 +380,27 @@ button {
 
 /* --- 印刷待ちキュー --- */
 .queue-section {
-    margin-top: 30px;
-    background-color: #f9f9f9;
-    padding: 15px;
+    width: 100%;
+    box-sizing: border-box; /* パディングを含めて幅を計算させる（はみ出し防止） */
+    padding: 20px;
+    background: #f9f9f9;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
+    border: 1px solid #ddd;
 }
-.queue-section h2 {
-    font-size: 1.2em;
+.queue-section h3 {
     margin-top: 0;
-    margin-bottom: 10px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 5px;
+    margin-bottom: 15px;
+    font-size: 1.2em;
 }
 #print-queue-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 15px 0;
-    max-height: 200px;
+    margin: 0;
+    max-height: 400px;
     overflow-y: auto;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 4px;
 }
 #print-queue-list li {
     background: white;
@@ -412,6 +421,7 @@ button {
 .queue-actions {
     display: flex;
     gap: 10px;
+    margin-bottom: 15px; /* ボタンとリストの間に隙間 */
 }
 
 /* --- 印刷用スタイル --- */
