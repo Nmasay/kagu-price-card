@@ -1,54 +1,68 @@
+:root {
+    --primary-color: #007bff;
+    --primary-hover: #0056b3;
+    --secondary-color: #6c757d;
+    --secondary-hover: #5a6268;
+    --bg-overlay: rgba(255, 255, 255, 0.65);
+    --header-bg: rgba(255, 255, 255, 0.85);
+    --text-color: #000000;
+    --border-color: #ccc;
+    --bg-color-fallback: #7c7878;
+    --danger-color: #dc3545;
+    --danger-hover: #a71d2a;
+    --card-bg: #fff;
+    --list-hover-bg: #f0f0f0;
+}
+
 .site-header {
-    background-color: rgba(255, 255, 255, 0.85); /* 半透明の白背景 (コンテナと同じ透過度) */
-    color: #000000;
-    padding: 10px 20px; /* 上下 左右 */
-    display: flex; /* ロゴとタイトルを横並び */
-    align-items: center; /* 垂直方向中央揃え */
-    gap: 15px; /* ロゴとタイトルの間の隙間 */
-    border-bottom-left-radius: 8px; /* 左下の角を丸くする */
-    border-bottom-right-radius: 8px; /* 右下の角を丸くする */
+    background-color: var(--header-bg);
+    color: var(--text-color);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
 .logo-container {
-    flex-shrink: 0; /* ロゴが縮まないように */
+    flex-shrink: 0;
 }
 
 .site-logo {
-    height: 40px; /* ロゴの高さ */
+    height: 40px;
     width: auto;
-    display: block; /* 余計な隙間を防ぐ */
+    display: block;
 }
 
 .site-title {
-    font-size: 1.8em; /* タイトルのフォントサイズ */
-    margin: 0; /* デフォルトのマージンをリセット */
+    font-size: 1.8em;
+    margin: 0;
     font-weight: bold;
 }
 
 body {
     font-family: 'Noto Sans JP', sans-serif;
     line-height: 1.6;
-    margin: 0; /* bodyのマージンをリセット */
-    background-image: url('images/backimage.jpg'); /* ここに背景画像のパスを指定 */
-    background-size: cover; /* 画面全体を覆うように画像を拡大縮小 */
-    background-position: center center; /* 画像を中央に配置 */
-    background-repeat: no-repeat; /* 画像を繰り返さない */
-    background-attachment: fixed; /* スクロールしても背景画像を固定 */
-    background-color: #7c7878; /* 画像が読み込めない場合の背景色 */
+    margin: 0;
+    background-image: url('images/backimage.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: var(--bg-color-fallback);
 }
 
 .container {
-    max-width: 1200px; /* 横並びのため広げる (値は調整してください) */
-    margin: auto;
-    background: rgba(255, 255, 255, 0.65); /* 半透明の白背景 */
+    max-width: 1200px;
+    margin: 50px auto 20px auto;
+    background: var(--bg-overlay);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    display: flex; /* 子要素 (#preview-container, #input-form) を横並びにする */
-    gap: 30px; /* プレビューとフォームの間の隙間 (値は調整してください) */
-    align-items: center; /* 上端揃えにする (中央揃えなら center,充魔を揃えるなら flex-start*/
-    margin-top: 50px; /* ヘッダーとの間のマージンを少し広げる */
-    margin-bottom: 20px; /* 下部にもマージンを追加 */
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
 }
 
 h1, h2 {
@@ -60,179 +74,206 @@ h1, h2 {
     padding: 20px;
     background-color: #1979ff;
     border-radius: 5px;
-    display: flex; /* 中央揃えのため */
-    justify-content: center; /* 中央揃えのため */
-    align-items: center; /* 中央揃えのため */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
 }
 
 /* プライスカード本体 (ハガキサイズ 横: 148mm, 縦: 100mm) */
-#price-card {
+.price-card-template {
     width: 148mm;
     height: 105mm;
-    border: 1px solid #ccc;
-    background-color: #fff; /* カード背景は白 */
-    padding: 0.5mm; /* 余白 */
-    box-sizing: border-box; /* paddingを含めてサイズ計算 */
-    position: relative; /* 子要素の絶対配置の基準 */
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
+    padding: 0.5mm;
+    box-sizing: border-box;
+    position: relative;
     display: flex;
-    flex-direction: column; /* 行を縦に並べる */
-    overflow: hidden; /* はみ出した内容を隠す */
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 一括印刷用コンテナは画面上は非表示 */
+#print-batch-container {
+    display: none;
 }
 
 .card-row {
     width: 100%;
     box-sizing: border-box;
     display: flex;
-    align-items: center; /* 垂直中央揃え */
-    justify-content: center; /* 水平中央揃え (デフォルト) */
-    padding: 0 5px; /* 左右に少しパディング */
-    overflow: visible; /* 内容がはみ出さないように */
-    
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    overflow: visible;
 }
 
 /* 各行の高さとスタイル */
 .title-row {
     height: 2cm;
-    font-size: 50px; /* 初期値 (JSで変更可能) */
+    font-size: 50px;
     font-weight: bold;
-    align-items: flex-start; /* 複数行の場合、上寄せにする */
-    white-space: pre-wrap;  /* テキストエリアの改行を反映 */
-    word-break: break-word; /* 長い単語も折り返す */
+    align-items: flex-start;
+    white-space: pre-wrap;
+    word-break: break-word;
     line-height: 1.1;
-    padding-top: 20px; /*タイトル上に余白*/
-    overflow: visible;
+    padding-top: 20px;
 }
 
-/* --- 商品タイトル履歴リストのスタイル --- */
-.title-input-container {
-    position: relative; /* 履歴リストの位置決めの基準 */
-  }
-  
-  .history-list {
-    display: none; /* 初期状態は非表示 */
+/* --- 入力履歴リストのスタイル --- */
+.title-input-container, .notes-input-container {
+    position: relative;
+}
+
+.history-list {
+    display: none;
     position: absolute;
-    background-color: white;
-    border: 1px solid #ccc;
-    border-top: none; /* 上の罫線は不要な場合 */
-    width: calc(100% - 2px); /* Input幅に合わせる (border分引く) */
-    max-height: 150px; /* リストの最大高さ */
-    overflow-y: auto; /* 高さを超えたらスクロール */
-    z-index: 10; /* 他の要素より手前に表示 */
-    box-sizing: border-box; /* padding/borderをwidth/heightに含める */
-    margin-top: -1px; /* inputのborderと重ねる */
-  }
-  
-  .history-item {
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-top: none;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.history-item {
     padding: 8px 10px;
     cursor: pointer;
-    display: flex; /* 横並び配置 */
-    justify-content: space-between; /* 両端揃え */
-    align-items: center; /* 上下中央揃え */
-    border-bottom: 1px solid #eee; /* 項目間の区切り線 */
-  }
-  .history-item:last-child {
-      border-bottom: none; /* 最後の項目は線なし */
-  }
-  
-  .history-item:hover {
-    background-color: #f0f0f0; /* ホバー時に背景を薄いグレーに */
-  }
-  
-  .history-item span {
-    flex-grow: 1; /* テキスト部分が幅を占めるように */
-    margin-right: 10px; /* テキストとボタンの間隔 */
-    overflow: hidden;   /* 長いテキストは隠す */
-    text-overflow: ellipsis; /* 省略記号(...)を表示 */
-    white-space: nowrap; /* 折り返し禁止 */
-  }
-  
-  .history-item button {
-    background: none;
-    border: none;    color: #dc3545;
-    cursor: pointer;
-    font-size: 1.1em; /* 少し大きめに */
-    padding: 0 5px;
-    line-height: 1; /* ボタンの縦サイズ調整 */
-    flex-shrink: 0; /* ボタンが縮まないように */
-  }
-  .history-item button:hover {    color: #a71d2a;
-  }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
 
-  
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-item:hover {
+    background-color: var(--list-hover-bg);
+}
+
+.history-item span {
+    flex-grow: 1;
+    margin-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.history-item button {
+    background: none;
+    border: none;
+    color: var(--danger-color);
+    cursor: pointer;
+    font-size: 1.1em;
+    padding: 0 5px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.history-item button:hover {
+    color: var(--danger-hover);
+}
+
 .condition-row {
-    height: 2.5cm;
+    min-height: 2.0cm;
+    height: auto;
     color: red;
     font-weight: bold;
-    font-size: 39px; /* 初期値 (JSで変更可能) */
-    justify-content: left; /* 左寄せ */
+    font-size: 55px;
+    justify-content: flex-start;
     padding-right: 40px;
-    padding-top: 35px;
+    padding-top: 20px; /* 上部の無駄な余白を削減 */
 }
 
 .notes-row {
-    height: 1.6cm;
+    min-height: 1.6cm;
+    height: auto;
     color: blue;
-    justify-content: flex-start; /* 左寄せ */
-    font-size: 30px; /* 初期値 (JSで変更可能) */
-    align-items: flex-start; /* 上寄せ */
-    padding-top: 5px 10px; /* 上部に少しパディング */
-    white-space: pre-wrap; /* 改行を反映 */
-    word-break: break-all; /* 長い単語も折り返す */
+    font-size: 30px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-top: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    flex-shrink: 0; /* 縮小されて文字が重なるのを防ぐ */
 }
 
-
-#preview-delivery-options {
-    
-    /* height: 1.6cm; /* 必要に応じて高さを指定 */
-    color: #ff0000; /* 文字色 (例: 少し暗めのグレー) */
-    justify-content: flex-start; /* 左寄せ */
-    font-size: 12px; /* フォントサイズ (備考欄より少し小さめなど調整) */
-    align-items: flex-start; /* 上寄せ */
-    padding: 5px 10px; /* 上下左右のパディング */
-    white-space: pre-wrap; /* 改行を反映 (長い選択肢の場合) */
-    word-break: break-word; /* 長い単語も折り返す */
-    /* 必要であれば、他の .card-row の共通スタイルも確認 */
+.preview-delivery-options {
+    color: #ff0000;
+    font-size: 14px;
+    padding: 0 15px;
+    margin-top: 10px; /* 備考との間に隙間をあける */
+    white-space: pre-wrap;
+    word-break: break-word;
     width: 100%;
     box-sizing: border-box;
     display: flex;
-    position: absolute; /* 行のフローから外し、レイヤーとして重ねる */
-    bottom: 3.2cm; /* 金額行の上に配置 (少し上に調整) */
-    left: 15px;    /* 左からの余白（必要に応じて調整してください） */
-    z-index: 5;   /* 他の行より前面に出す */
+    justify-content: flex-start;
+    align-items: flex-start;
+    min-height: 1.2cm;
+    height: auto;
+    flex-shrink: 0; /* 縮小されて文字が重なるのを防ぐ */
 }
 
 .price-row {
-    height: 2.8cm;
+    min-height: 2.8cm;
+    height: auto;
     font-weight: bold;
-    font-size: 60px; /* 初期値 (JSで動的に調整) */
-    justify-content:  flex-start; /* 中央揃え */
+    font-size: 60px;
+    justify-content: flex-start;
     padding-left: 30px;
-    padding-bottom: 35px;
-    white-space: nowrap; /* 金額は改行しない */
+    padding-bottom: 20px; /* 余白を削減 */
+    white-space: nowrap;
+    flex-grow: 1; /* 余ったスペースを下部で吸収 */
 }
 
 /* バーコード */
-#barcode {
+.barcode-svg {
     position: absolute;
-    top: 150px; /* 上からの位置 */
-    right: 30px; /* 右からの位置 */
+    top: 150px;
+    right: 30px;
     width: auto;
-    /* 高さはJSで設定 */
-    z-index: 10; /* 他の要素より手前に */
-}
-
-/* 作成日時 */
-#timestamp {
-    position: absolute;
-    bottom: 20px; /* 下からの位置 */
-    right: 10px; /* 右からの位置 */
-    font-size: 10pt;
-    color: #000000;
     z-index: 10;
 }
 
+/* 作成日時 */
+.timestamp-div {
+    position: absolute;
+    top: 130px; /* バーコード(top: 150px)の直上に配置 */
+    right: 30px; /* バーコードと右端を揃える */
+    font-size: 14px;
+    color: #666;
+    z-index: 10;
+}
+
+/* --- チェック欄 --- */
+.check-section {
+    position: absolute;
+    bottom: 38px;
+    right: 5px;
+    font-size: 10pt;
+    color: #333;
+    z-index: 10;
+    line-height: 1.3;
+    text-align: left;
+}
+
+.check-item {
+    margin-bottom: 1px;
+    white-space: nowrap;
+}
+
 #input-form {
-    margin-top: 20px;
     flex-grow: 1;
 }
 
@@ -252,74 +293,57 @@ h1, h2 {
 .form-group textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     box-sizing: border-box;
     font-size: 18px;
 }
 
 .form-group textarea {
-    resize: vertical; /* 縦方向のみリサイズ可能 */
+    resize: vertical;
 }
 
-/* --- スライダーのカスタムスタイル --- */
+/* --- スライダー --- */
 input[type="range"] {
-    -webkit-appearance: none; /* Safari, Chrome */
-    appearance: none;
-    width: 70%; /* 幅を少し調整 */
-    height: 8px; /* トラックの高さ */
-    background: #e0e0e0; /* トラックの背景色 (薄いグレー) */
-    outline: none;
-    opacity: 0.9;
-    -webkit-transition: opacity .15s ease-in-out;
-    transition: opacity .15s ease-in-out;
-    border-radius: 4px; /* トラックの角を丸く */
-    margin: 8px 0; /* 上下に少しマージン */
-}
-
-input[type="range"]:hover {
-    opacity: 1;
-}
-
-/* スライダーのつまみ (thumb) - WebKit系 (Chrome, Safari, Edge Chromium) */
-input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px; /* つまみの幅 */
-    height: 18px; /* つまみの高さ */
-    background: #007bff; /* つまみの背景色 (ボタンと同じ青) */
-    cursor: pointer;
-    border-radius: 50%; /* 円形 */
-    border: 2px solid #fff; /* 白い枠線 */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* 軽い影 */
+    width: 70%;
+    height: 8px;
+    background: #e0e0e0;
+    outline: none;
+    opacity: 0.9;
+    transition: opacity .15s ease-in-out;
+    border-radius: 4px;
+    margin: 8px 0;
 }
-
-/* スライダーのつまみ (thumb) - Firefox */
-input[type="range"]::-moz-range-thumb {
-    width: 14px; /* Firefoxではborderを含まないサイズで指定 */
-    height: 14px;
-    background: #007bff;
+input[type="range"]:hover { opacity: 1; }
+input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--primary-color);
     cursor: pointer;
     border-radius: 50%;
     border: 2px solid #fff;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
-
-/* スライダーの横に表示される数値 (例: <span id="title-font-size-value">) のスタイル調整 */
 .form-group .font-size-value {
     display: inline-block;
-    min-width: 2.5em; /* 数値表示エリアの最小幅を確保 */
+    min-width: 2.5em;
     text-align: right;
     padding-left: 10px;
     font-weight: bold;
     color: #333;
 }
-/* --------------------------------- */
 
-
+/* --- ボタン類 --- */
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
 button {
-    background-color: #007bff;
-    color: white;
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
@@ -327,88 +351,173 @@ button {
     font-size: 16px;
     transition: background-color 0.3s ease;
 }
+.primary-button {
+    background-color: var(--primary-color);
+    color: white;
+}
+.primary-button:hover { background-color: var(--primary-hover); }
+.primary-button:disabled { background-color: #a0cbfc; cursor: not-allowed; }
 
-button:hover {
-    background-color: #0056b3;
+.secondary-button {
+    background-color: var(--secondary-color);
+    color: white;
+}
+.secondary-button:hover { background-color: var(--secondary-hover); }
+
+.danger-button {
+    background-color: var(--danger-color);
+    color: white;
+}
+.danger-button:hover { background-color: var(--danger-hover); }
+.danger-button:disabled { background-color: #f5a6b0; cursor: not-allowed; }
+
+/* --- 印刷待ちキュー --- */
+.queue-section {
+    margin-top: 30px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+.queue-section h2 {
+    font-size: 1.2em;
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+}
+#print-queue-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 15px 0;
+    max-height: 200px;
+    overflow-y: auto;
+}
+#print-queue-list li {
+    background: white;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+}
+.queue-item-info {
+    display: flex;
+    flex-direction: column;
+}
+.queue-item-title { font-weight: bold; font-size: 0.9em; }
+.queue-item-price { font-size: 0.8em; color: #555; }
+.queue-actions {
+    display: flex;
+    gap: 10px;
 }
 
 /* --- 印刷用スタイル --- */
 @media print {
-
-    /* ページの基本設定 */
     @page {
-        size: 148mm 105mm landscape; /* ハガキサイズ 横向き */
-        margin: 0mm; /* プリンターのデフォルトマージンを極力なくす */
+        size: 148mm 105mm landscape;
+        margin: 0mm;
     }
 
-    /* bodyの基本スタイルリセット */
     body {
         margin: 0 !important;
         padding: 0 !important;
-        background-color: #fff !important;
+        background-color: var(--card-bg) !important;
         line-height: normal !important;
         font-family: sans-serif !important;
-        width: 148mm; /* body自体の幅も印刷サイズに合わせる */
-        height: 105mm; /* body自体の高さも印刷サイズに合わせる */
-        overflow: visible; /* はみ出し防止 */
-        visibility: visible !important; /* body自体は表示 */
-    }
-    
-    /* 印刷対象外の要素を非表示 */
-    body * {
-        visibility: hidden;
-    }
-    /* 印刷対象のカードのみ表示 */
-    #price-card {
+        overflow: visible;
         visibility: visible !important;
     }
-   
     
-    /* プレビューコンテナのスタイルをリセット */
-    #preview-container {
-        display: block !important; /* display:flex を解除 */
-        position: static !important; /* 配置をリセット */
+    /* 不要なUI要素は完全に非表示（物理的スペースも消す） */
+    .site-header, #input-form, #print-queue-section {
+        display: none !important;
+    }
+
+    /* 個別印刷時：コンテナの幅制限や余白を完全に解除 */
+    body:not(.is-batch-printing) .container {
+        max-width: none !important;
         margin: 0 !important;
         padding: 0 !important;
-        padding-top: 0.5mm !important;
-        padding-right: 0.7mm !important; /* 右パディングを 0.5mm + 0.2mm = 0.7mm に */
-        padding-bottom: 0.5mm !important;
-        padding-left: 0.5mm !important;
-        background-color: transparent !important; /* 背景を透明に */
-        border: none !important;
+        background: transparent !important;
         box-shadow: none !important;
-        width: 100% !important; /* 親要素(body)に合わせる */
-        height: 100% !important; /* 親要素(body)に合わせる */
-        visibility: visible !important; /* 表示 */
+        display: block !important;
     }
 
-
-    /* #price-cardをページの左上に配置し、サイズを固定 */
-    #price-card {
-        position: absolute !important; /* ページ基準で配置 */
-        left: 0 !important;
-        top: 0 !important;
-        width: 148mm !important; /* 印刷サイズを明示的に指定 */
-        height: 105mm !important; /* 印刷サイズを明示的に指定 */
-        margin: 0 !important; /* マージンをリセット */
-        padding: 0.5mm !important; /* 画面用のパディングを維持 */
-        border: none !important; /* 枠線を維持 */
-        box-shadow: none !important; /* 影は印刷しない */
-        box-sizing: border-box !important; /* サイズ計算方法を維持 */
-        overflow: hidden !important; /* はみ出しを隠す */
-        page-break-inside: avoid !important; /* カード内で改ページされないように */
-        background-color: #fff !important; /* 背景色を白に */
-        display: flex !important; /* flexレイアウトを維持 */
-        flex-direction: column !important; /* 縦並びを維持 */
-        visibility: visible !important; /* 明示的に表示 */
+    /* 一括印刷時：コンテナ全体を完全に非表示にし、一切のスペースを取らせない */
+    body.is-batch-printing .site-header,
+    body.is-batch-printing .container {
+        display: none !important;
     }
 
-    /* price-card内のすべての要素を表示状態にする */
-    #price-card * {
+    /* 印刷モードによる表示切り替え */
+    body.is-batch-printing #print-batch-container {
+        display: flex !important;
+        flex-direction: column !important;
+        visibility: visible !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    body.is-batch-printing #preview-container {
+        display: none !important;
+    }
+    body.is-batch-printing #print-batch-container * {
         visibility: visible !important;
     }
 
-    /* カード内の各行の前後や途中で改ページが発生するのを強力に防ぐ */
+    /* 個別印刷時のスタイル */
+    body:not(.is-batch-printing) #price-card,
+    body:not(.is-batch-printing) #price-card * {
+        visibility: visible !important;
+    }
+
+    body:not(.is-batch-printing) #preview-container {
+        display: block !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: transparent !important;
+    }
+    
+    body:not(.is-batch-printing) #price-card {
+        position: relative !important; /* absoluteからrelativeへ変更。コンテナのフローに従わせる */
+        left: 0 !important;
+        top: 0 !important;
+    }
+
+    /* プライスカードの共通印刷スタイル */
+    .price-card-template {
+        width: 147mm !important;
+        height: 104mm !important; /* 105mmから1mm減らして確実にはみ出しを防ぐ */
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        margin: 0 auto !important;
+        padding: 0.5mm !important;
+        border: none !important;
+        box-shadow: none !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        background-color: var(--card-bg) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        visibility: visible !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* 一括印刷時は、カード間にのみ改ページを入れる */
+    body.is-batch-printing .price-card-template {
+        position: relative !important;
+    }
+
+    body.is-batch-printing .price-card-template:not(:last-child) {
+        page-break-after: always !important;
+        break-after: page !important;
+    }
+
     .card-row {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
@@ -416,95 +525,15 @@ button:hover {
         break-before: avoid !important;
     }
 
-    /* 配達オプションの表示を確実にする */
-    #preview-delivery-options {
+    .barcode-svg, .timestamp-div {
+        position: absolute !important;
+        z-index: 10 !important;
         visibility: visible !important;
-        display: flex !important; /* 通常表示時の display プロパティを維持 */
-        font-size: 12pt !important; /* 印刷時のフォントサイズ (例: 備考やチェック欄と合わせる) */
-        color: #ff0000 !important; /* 印刷時は黒文字に */
-        align-items: flex-start !important; /* 上寄せ */
-        justify-content: flex-start !important; /* 左寄せ */
-        padding: 1mm 2mm !important; /* 印刷時のパディング調整 (例: 上下1mm, 左右2mm) */
-        min-height: 0.5cm !important; /* 最低限の高さを確保 (必要に応じて調整) */
     }
-    /* バーコードとタイムスタンプの位置を維持 */
-    #barcode, #timestamp {
-        position: absolute !important; /* 絶対配置を維持 */
-        z-index: 10 !important; /* 重なり順を維持 */
-        visibility: visible !important; /* 明示的に表示 */
-    }
-    #barcode {
-        top: 150px !important;
-        right: 30px !important;
-    }
-    #timestamp {
-        bottom: 20px !important;
-        right: 10px !important;
-        font-size: 10pt !important; /* フォントサイズ維持 */
-        color: #555 !important; /* 色を維持 */
-    }
-
-    /* 印刷時の各行スタイル */
+    .barcode-svg { top: 150px !important; right: 30px !important; }
+    .timestamp-div { top: 130px !important; right: 30px !important; font-size: 10pt !important; color: #555 !important; }
     
-    .condition-row {
-        color: red !important; 
-    }
-    .notes-row {
-        /* font-size: 20px !important; */ /* 必要なら */
-        /* color: blue !important; */ /* 色を維持する場合 */
-        white-space: pre-wrap !important; /* 改行維持 */
-        word-break: break-all !important; /* 折り返し維持 */
-        padding-top: 10px;
-    }
-    .price-row {
-        /* font-size: 72px !important; */ /* 必要なら */
-        white-space: nowrap !important; /* 改行しない設定を維持 */
-        padding-bottom: 5px !important; /* 通常時の35pxだと高さを圧迫するため、印刷時は余白を減らす */
-    }
-    #check-section, #check-section .check-item {
-        visibility: visible !important;
-    }
-    #check-section {
-        font-size: 10pt !important; /* 印刷時のフォントサイズ */
-        line-height: 1.2 !important; /* 印刷時の行間 */
-    }
-}
-/* /Users/masayan/Documents/programming/Gemini/kagu-card/style.css に追加 */
-.notes-input-container {
-    position: relative; /* 履歴リストの位置決めの基準にする */
-}
-
-/* 既存の .history-list のスタイルが以下のような設定になっているか確認してください。
-   もしなければ、追加または調整してください。
-   特に width, left, right, top, position あたりが重要です。 */
-.history-list {
-    position: absolute;
-    top: 100%; /* 入力欄のすぐ下に表示 */
-    left: 0;
-    right: 0; /* これで親コンテナの幅いっぱいに広がる */
-    /* もしくは width: 100%; でも可 */
-    background-color: white;
-    border: 1px solid #ccc;
-    z-index: 1000;
-    max-height: 150px; /* 必要に応じて調整 */
-    overflow-y: auto;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    /* display: none; はJavaScriptで制御 */
-}
-
-/* --- チェック欄 --- */
-#check-section {
-    position: absolute;
-    bottom: 38px; /* タイムスタンプの上、4行分のスペースを考慮して調整 */
-    right: 5px;   /* タイムスタンプと同じ右端揃え */
-    font-size: 10pt; /* 小さめのフォント */
-    color: #333;
-    z-index: 10;
-    line-height: 1.3; /* 行間 */
-    text-align: left; /* 内容は左揃え */
-}
-
-.check-item {
-    margin-bottom: 1px; /* 各項目の下のマージン */
-    white-space: nowrap; /* 折り返さない */
+    /* 個別の行スタイル上書きはプレビューと同じにするため削除 */
+    .check-section, .check-section .check-item { visibility: visible !important; }
+    .check-section { font-size: 10pt !important; line-height: 1.2 !important; }
 }
