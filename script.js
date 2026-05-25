@@ -320,6 +320,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 印刷待ちキュー管理 ---
+    function syncQueueHeight() {
+        const form = document.getElementById('input-form');
+        const queueSection = document.getElementById('print-queue-section');
+        if (form && queueSection) {
+            queueSection.style.height = form.offsetHeight + 'px';
+        }
+    }
+
     function updateQueueUI() {
         // 現在のキュー状態をlocalStorageに保存
         localStorage.setItem('kagu-price-card-queue', JSON.stringify(printQueue));
@@ -552,6 +560,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasSelectedItems = printQueue.some(item => item.selected !== false);
         batchPrintButton.disabled = !hasSelectedItems;
         clearQueueButton.disabled = !hasItems;
+        
+        syncQueueHeight();
     }
 
     addToListButton.addEventListener('click', () => {
@@ -619,7 +629,12 @@ document.addEventListener('DOMContentLoaded', () => {
             printQueue = [];
             updateQueueUI();
         }
+        // リスト更新後に高さを同期
+        syncQueueHeight();
     });
+
+    // ウィンドウリサイズ時にも高さを同期
+    window.addEventListener('resize', syncQueueHeight);
 
     // --- CSV一括読み込み処理 ---
     const importCsvButton = document.getElementById('import-csv-button');

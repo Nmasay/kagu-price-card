@@ -397,6 +397,8 @@ button {
 #print-queue-section {
     width: 320px;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .queue-header {
@@ -420,7 +422,10 @@ button {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 400px;
+    max-height: none; /* 固定高さを解除 */
+    height: 0; /* flexboxで親の高さを押し広げないためのトリック */
+    min-height: 0;
+    flex: 1; /* 親コンテナの残り高さを全て埋める */
     overflow-y: auto;
     border: 1px solid #ccc;
     background: #fff;
