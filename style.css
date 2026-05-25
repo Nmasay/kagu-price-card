@@ -14,33 +14,6 @@
     --list-hover-bg: #f0f0f0;
 }
 
-.site-header {
-    background-color: var(--header-bg);
-    color: var(--text-color);
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
-}
-
-.logo-container {
-    flex-shrink: 0;
-}
-
-.site-logo {
-    height: 40px;
-    width: auto;
-    display: block;
-}
-
-.site-title {
-    font-size: 1.8em;
-    margin: 0;
-    font-weight: bold;
-}
-
 body {
     font-family: 'Noto Sans JP', sans-serif;
     line-height: 1.6;
@@ -55,7 +28,7 @@ body {
 
 .container {
     max-width: 1400px; /* 3カラムのために広げる */
-    margin: 50px auto 20px auto;
+    margin: 20px auto;
     background: var(--bg-overlay);
     padding: 20px;
     border-radius: 8px;
@@ -317,7 +290,7 @@ input[type="range"] {
     appearance: none;
     width: 70%;
     height: 8px;
-    background: #e0e0e0;
+    background: #888888;
     outline: none;
     opacity: 0.9;
     transition: opacity .15s ease-in-out;
