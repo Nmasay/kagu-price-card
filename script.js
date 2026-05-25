@@ -238,6 +238,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.max(singleLineMaxHeight, multiLineMaxHeight);
     }
 
+    function autoFitText(element, sliderInput, sliderValueSpan, startSize, minSize, checkCardOverflow = false) {
+        let currentSize = parseInt(startSize, 10);
+        element.style.fontSize = currentSize + 'px';
+        const card = element.closest('.price-card-template');
+        
+        while (currentSize > minSize) {
+            let isOverflowing = false;
+            if (element.scrollWidth > element.clientWidth) {
+                isOverflowing = true;
+            } else if (element.scrollHeight > element.clientHeight) {
+                isOverflowing = true;
+            } else if (checkCardOverflow && card && card.scrollHeight > card.clientHeight) {
+                isOverflowing = true;
+            }
+            
+            if (!isOverflowing) break;
+            
+            currentSize--;
+            element.style.fontSize = currentSize + 'px';
+        }
+        
+        sliderInput.value = currentSize;
+        if (sliderValueSpan) {
+            sliderValueSpan.textContent = currentSize;
+        }
+    }
+
+    let isAutoFittingTitle = false;
+    let isAutoFittingNotes = false;
+
     // --- プレビュー更新関数 ---
     function updatePreview() {
         const isTitleMultiLine = titleInput.value.includes('\n');
@@ -276,6 +306,16 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 previewStamp.classList.remove('active');
             }
+        }
+        
+        if (isAutoFittingTitle) {
+            isAutoFittingTitle = false;
+            autoFitText(previewTitle, titleFontSizeInput, titleFontSizeValueSpan, titleFontSizeInput.value, 20, false);
+        }
+        
+        if (isAutoFittingNotes) {
+            isAutoFittingNotes = false;
+            autoFitText(previewNotes, notesFontSizeInput, notesFontSizeValueSpan, notesFontSizeInput.value, 15, true);
         }
     }
 
@@ -361,44 +401,76 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             checkboxDiv.appendChild(checkbox);
             
-            // 中央：情報
-            
+            // 中央：情報 (プレビュー風の3行レイアウト)
             const infoDiv = document.createElement('div');
             infoDiv.classList.add('queue-item-info');
+            infoDiv.style.display = 'flex';
+            infoDiv.style.flexDirection = 'column';
+            infoDiv.style.gap = '6px';
+            infoDiv.style.margin = '0 10px';
             
-            const topRowDiv = document.createElement('div');
-            topRowDiv.style.display = 'flex';
-            topRowDiv.style.alignItems = 'baseline';
-            topRowDiv.style.gap = '5px';
-            topRowDiv.style.flexWrap = 'wrap';
+            // 行1: スタンプ、状態
+            const row1 = document.createElement('div');
+            row1.style.display = 'flex';
+            row1.style.justifyContent = 'flex-start';
+            row1.style.gap = '8px';
+            row1.style.alignItems = 'center';
+            row1.style.fontSize = '0.75em';
+            row1.style.fontWeight = 'bold';
             
-            const conditionSpan = document.createElement('span');
-            conditionSpan.textContent = `【${item.condition || '未設定'}】`;
-            conditionSpan.style.fontWeight = 'bold';
-            conditionSpan.style.fontSize = '0.8em';
-            conditionSpan.style.color = item.condition === '中古' ? 'red' : 'green';
+            const stampSpan = document.createElement('span');
+            stampSpan.style.color = 'white';
+            stampSpan.style.backgroundColor = '#e60000';
+            stampSpan.style.padding = '2px 6px';
+            stampSpan.style.borderRadius = '4px';
+            stampSpan.style.fontSize = '0.7em';
+            stampSpan.textContent = item.stampText ? item.stampText : '';
+            if (!item.stampText) stampSpan.style.visibility = 'hidden';
 
-            const titleSpan = document.createElement('span');
-            titleSpan.classList.add('queue-item-title');
+            const conditionSpan = document.createElement('span');
+            conditionSpan.textContent = item.condition || '中古';
+            conditionSpan.style.color = item.condition === '中古' ? '#d9534f' : '#5cb85c';
+            
+            row1.appendChild(stampSpan);
+            row1.appendChild(conditionSpan);
+
+            // 行2: 商品名
+            const row2 = document.createElement('div');
+            row2.style.display = 'block';
+            
+            const titleSpan = document.createElement('div');
+            titleSpan.style.fontWeight = 'bold';
+            titleSpan.style.fontSize = '0.8em';
+            titleSpan.style.overflow = 'hidden';
+            titleSpan.style.textOverflow = 'ellipsis';
+            titleSpan.style.whiteSpace = 'nowrap';
             titleSpan.textContent = item.title || '(名称未入力)';
             
-            const priceSpan = document.createElement('span');
-            priceSpan.classList.add('queue-item-price');
-            priceSpan.textContent = !isNaN(item.price) ? `¥${item.price.toLocaleString()}` : '¥---';
+            row2.appendChild(titleSpan);
 
-            topRowDiv.appendChild(conditionSpan);
-            topRowDiv.appendChild(titleSpan);
-            topRowDiv.appendChild(priceSpan);
-
-            if (item.notes) {
-                const notesSpan = document.createElement('span');
-                notesSpan.textContent = `(${item.notes.replace(/\\n/g, ' ')})`; // 複数行の場合はスペースに置換
-                notesSpan.style.fontSize = '0.75em';
-                notesSpan.style.color = '#555';
-                topRowDiv.appendChild(notesSpan);
-            }
+            // 行3: 金額
+            const priceRow = document.createElement('div');
+            priceRow.style.textAlign = 'right';
             
-            infoDiv.appendChild(topRowDiv);
+            const priceSpan = document.createElement('span');
+            priceSpan.style.fontWeight = 'bold';
+            priceSpan.style.fontSize = '1.1em';
+            priceSpan.style.color = '#333';
+            priceSpan.textContent = !isNaN(item.price) ? `¥${item.price.toLocaleString()}` : '¥---';
+            
+            priceRow.appendChild(priceSpan);
+
+            // 行4: 備考
+            const row3 = document.createElement('div');
+            row3.style.fontSize = '0.75em';
+            row3.style.color = '#555';
+            row3.textContent = item.notes ? item.notes.replace(/\n/g, ' ') : '';
+            if (!item.notes) row3.style.display = 'none';
+
+            infoDiv.appendChild(row1);
+            infoDiv.appendChild(row2);
+            infoDiv.appendChild(priceRow);
+            infoDiv.appendChild(row3);
 
             // 右側：アクションボタン（編集、上、下、削除）
             const actionsDiv = document.createElement('div');
@@ -742,6 +814,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- イベントリスナーの設定 ---
+    titleInput.addEventListener('input', () => {
+        isAutoFittingTitle = true;
+        titleFontSizeInput.value = titleInput.value.includes('\n') ? 45 : 60;
+        updatePreview();
+    });
+    
+    notesTextarea.addEventListener('input', () => {
+        isAutoFittingNotes = true;
+        notesFontSizeInput.value = 50;
+        updatePreview();
+    });
+
     titleFontSizeInput.addEventListener('input', () => {
         titleFontSizeValueSpan.textContent = titleFontSizeInput.value;
         updatePreview();
