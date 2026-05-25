@@ -394,10 +394,22 @@ button {
     border-radius: 8px;
     border: 1px solid #ddd;
 }
-.queue-section h3 {
-    margin-top: 0;
+.queue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 15px;
+}
+.queue-header h3 {
+    margin: 0;
     font-size: 1.2em;
+}
+.select-all-label {
+    font-size: 0.9em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 #print-queue-list {
     list-style: none;
@@ -422,7 +434,28 @@ button {
 .queue-item-info {
     display: flex;
     flex-direction: column;
+    flex: 1; /* 残りの領域を埋める */
 }
+.queue-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.queue-item-checkbox {
+    margin-right: 10px;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+.move-btn {
+    background: #eee;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    padding: 2px 6px;
+    font-size: 14px;
+    border-radius: 3px;
+}
+.move-btn:hover { background: #ddd; }
 .queue-item-title { font-weight: bold; font-size: 0.9em; }
 .queue-item-price { font-size: 0.8em; color: #555; }
 .queue-actions {

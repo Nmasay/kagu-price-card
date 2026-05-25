@@ -98,9 +98,14 @@
 
         <!-- 右カラム（新）：印刷待ちリストエリア -->
         <div id="print-queue-section" class="queue-section">
-            <h3>印刷待ちリスト (<span id="queue-count">0</span>件)</h3>
+            <div class="queue-header">
+                <h3>印刷待ち (<span id="queue-count">0</span>件)</h3>
+                <label class="select-all-label">
+                    <input type="checkbox" id="select-all-checkbox" checked> 全選択
+                </label>
+            </div>
             <div class="queue-actions">
-                <button type="button" id="batch-print-button" class="action-button primary-button" disabled>すべて印刷</button>
+                <button type="button" id="batch-print-button" class="action-button primary-button" disabled>選択項目を印刷</button>
                 <button type="button" id="clear-queue-button" class="action-button danger-button" disabled>リストをクリア</button>
             </div>
             <ul id="print-queue-list"></ul>

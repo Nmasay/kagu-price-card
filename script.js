@@ -36,7 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const notesHistoryListDiv = document.getElementById('notes-history-list');
 
     // --- 印刷待ちキュー ---
-    let printQueue = [];
+    // localStorageから保存済みのキューを取得、なければ空配列
+    let printQueue = JSON.parse(localStorage.getItem('kagu-price-card-queue')) || [];
 
     // --- 履歴管理用クラス ---
     class HistoryManager {
@@ -237,11 +238,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 印刷待ちキュー管理 ---
     function updateQueueUI() {
+        // 現在のキュー状態をlocalStorageに保存
+        localStorage.setItem('kagu-price-card-queue', JSON.stringify(printQueue));
+
         queueCountSpan.textContent = printQueue.length;
         printQueueList.innerHTML = '';
+        
+        const selectAllCheckbox = document.getElementById('select-all-checkbox');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = printQueue.length > 0 && printQueue.every(item => item.selected !== false);
+            selectAllCheckbox.onchange = (e) => {
+                const isChecked = e.target.checked;
+                printQueue.forEach(item => item.selected = isChecked);
+                updateQueueUI();
+            };
+        }
 
         printQueue.forEach((item, index) => {
             const li = document.createElement('li');
+            
+            // 左側：チェックボックス
+            const checkboxDiv = document.createElement('div');
+            checkboxDiv.classList.add('queue-item-controls');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.classList.add('queue-item-checkbox');
+            checkbox.checked = item.selected !== false;
+            checkbox.onchange = (e) => {
+                item.selected = e.target.checked;
+                updateQueueUI();
+            };
+            checkboxDiv.appendChild(checkbox);
+            
+            // 中央：情報
             
             const infoDiv = document.createElement('div');
             infoDiv.classList.add('queue-item-info');
@@ -253,7 +282,7 @@ document.addEventListener('DOMContentLoaded', () => {
             topRowDiv.style.flexWrap = 'wrap';
             
             const conditionSpan = document.createElement('span');
-            conditionSpan.textContent = `💳 【${item.condition || '未設定'}】`;
+            conditionSpan.textContent = `【${item.condition || '未設定'}】`;
             conditionSpan.style.fontWeight = 'bold';
             conditionSpan.style.fontSize = '0.8em';
             conditionSpan.style.color = item.condition === '中古' ? 'red' : 'green';
@@ -280,23 +309,54 @@ document.addEventListener('DOMContentLoaded', () => {
             
             infoDiv.appendChild(topRowDiv);
 
+            // 右側：アクションボタン（上、下、削除）
+            const actionsDiv = document.createElement('div');
+            actionsDiv.classList.add('queue-item-controls');
+
+            if (index > 0) {
+                const upBtn = document.createElement('button');
+                upBtn.innerHTML = '↑';
+                upBtn.classList.add('move-btn');
+                upBtn.title = '上へ移動';
+                upBtn.onclick = () => {
+                    [printQueue[index - 1], printQueue[index]] = [printQueue[index], printQueue[index - 1]];
+                    updateQueueUI();
+                };
+                actionsDiv.appendChild(upBtn);
+            }
+
+            if (index < printQueue.length - 1) {
+                const downBtn = document.createElement('button');
+                downBtn.innerHTML = '↓';
+                downBtn.classList.add('move-btn');
+                downBtn.title = '下へ移動';
+                downBtn.onclick = () => {
+                    [printQueue[index + 1], printQueue[index]] = [printQueue[index], printQueue[index + 1]];
+                    updateQueueUI();
+                };
+                actionsDiv.appendChild(downBtn);
+            }
+
             const removeBtn = document.createElement('button');
             removeBtn.innerHTML = '&times;';
             removeBtn.classList.add('danger-button');
             removeBtn.title = '削除';
-            removeBtn.style.padding = '5px 10px';
+            removeBtn.style.padding = '3px 8px'; // 少し小さめに
             removeBtn.onclick = () => {
                 printQueue.splice(index, 1);
                 updateQueueUI();
             };
+            actionsDiv.appendChild(removeBtn);
 
+            li.appendChild(checkboxDiv);
             li.appendChild(infoDiv);
-            li.appendChild(removeBtn);
+            li.appendChild(actionsDiv);
             printQueueList.appendChild(li);
         });
 
         const hasItems = printQueue.length > 0;
-        batchPrintButton.disabled = !hasItems;
+        const hasSelectedItems = printQueue.some(item => item.selected !== false);
+        batchPrintButton.disabled = !hasSelectedItems;
         clearQueueButton.disabled = !hasItems;
     }
 
@@ -308,9 +368,10 @@ document.addEventListener('DOMContentLoaded', () => {
             notes: notesTextarea.value,
             notesFontSize: notesFontSizeInput.value,
             deliveryOptionText: deliveryOptionsSelect ? deliveryOptionsSelect.options[deliveryOptionsSelect.selectedIndex].text : '',
-            price: parseInt(priceInput.value, 10)
+            price: parseInt(priceInput.value, 10),
+            selected: true // 追加時はデフォルトで選択状態
         };
-        printQueue.push(item);
+        printQueue.unshift(item); // 先頭に追加する
         updateQueueUI();
         
         // 追加後、入力フォームを空にする（任意）
@@ -362,13 +423,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     batchPrintButton.addEventListener('click', () => {
-        if (printQueue.length === 0) return;
+        const selectedItems = printQueue.filter(item => item.selected !== false);
+        if (selectedItems.length === 0) return;
 
         printBatchContainer.innerHTML = '';
         document.body.classList.add('is-batch-printing');
 
         // カードの生成とDOM追加
-        printQueue.forEach((item, index) => {
+        selectedItems.forEach((item, index) => {
             const cardEl = buildPrintCardElement(item, index);
             printBatchContainer.appendChild(cardEl);
 
@@ -384,6 +446,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.classList.remove('is-batch-printing');
                 printBatchContainer.innerHTML = ''; // 掃除
                 window.onafterprint = null;
+                
+                // 印刷が完了したアイテムのチェックを外す
+                selectedItems.forEach(item => item.selected = false);
+                updateQueueUI();
             };
             window.print();
         }, 300); // 描画を確実にするため少し待つ
