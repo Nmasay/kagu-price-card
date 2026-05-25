@@ -90,6 +90,9 @@
                 <div class="card-row price-row" id="preview-price">¥1,000</div>
                 <svg id="barcode" class="barcode-svg"></svg>
         
+                <!-- ダメージマップ表示領域 -->
+                <div id="preview-damage-map" class="damage-map-container"></div>
+        
                 <div id="check-section" class="check-section">
                     <div class="check-item">接客者: ＿＿＿＿＿</div>
                     <div class="check-item">売約:　　 □</div>
@@ -113,6 +116,22 @@
                     <button type="button" class="stamp-btn" data-stamp="現品限り">現品限り</button>
                     <input type="text" id="custom-stamp-input" placeholder="自由入力(6文字まで)" maxlength="6" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; width: 130px; margin-left: 10px;">
                 </div>
+            </div>
+
+            <!-- ダメージマップ選択パネル -->
+            <div class="damage-map-controls-panel" style="background: var(--bg-overlay); padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-top: 15px;">
+                <h4 style="margin-top: 0; margin-bottom: 10px; font-size: 14px;">🪑 ダメージマップ（キズの場所）</h4>
+                <select id="damage-map-select" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;">
+                    <option value="">🚫 なし</option>
+                    <option value="sofa">🛋️ ソファ</option>
+                    <option value="chair">🪑 チェア</option>
+                    <option value="table">🟫 テーブル</option>
+                    <option value="cabinet_tall">🪟 縦長キャビネット</option>
+                    <option value="cabinet_wide">📺 横長キャビネット</option>
+                    <option value="cupboard">🍽️ 食器棚</option>
+                    <option value="bed">🛏️ ベッド</option>
+                    <option value="color_box">🗄️ カラーボックス</option>
+                </select>
             </div>
         </div>
 

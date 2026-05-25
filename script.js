@@ -48,6 +48,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const customStampInput = document.getElementById('custom-stamp-input');
     const clearStampBtn = document.querySelector('.clear-stamp-btn');
     
+    // --- ダメージマップ要素の取得 ---
+    const damageMapSelect = document.getElementById('damage-map-select');
+    const previewDamageMap = document.getElementById('preview-damage-map');
+    let currentDamageMap = ''; // デフォルトはなし
+
+    // --- ダメージマップのSVG定義 ---
+    const damageMapSVGs = {
+        'sofa': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10,35 C10,25 20,20 50,20 C80,20 90,25 90,35 L90,75 L10,75 Z M10,45 C10,40 18,40 18,45 L18,75 L10,75 Z M90,45 C90,40 82,40 82,45 L82,75 L90,75 Z"/><line x1="50" y1="20" x2="50" y2="55"/><path d="M18,55 L82,55 C82,55 82,75 82,75 L18,75 Z"/><line x1="50" y1="55" x2="50" y2="75"/><line x1="15" y1="75" x2="15" y2="85"/><line x1="85" y1="75" x2="85" y2="85"/></svg>',
+        'chair': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M30,15 L70,15 L65,45 L35,45 Z"/><line x1="40" y1="15" x2="42" y2="45"/><line x1="50" y1="15" x2="50" y2="45"/><line x1="60" y1="15" x2="58" y2="45"/><polygon points="30,45 70,45 75,55 25,55"/><line x1="27" y1="55" x2="27" y2="90"/><line x1="73" y1="55" x2="73" y2="90"/><line x1="35" y1="45" x2="38" y2="85"/><line x1="65" y1="45" x2="62" y2="85"/><line x1="31" y1="70" x2="69" y2="70"/></svg>',
+        'table': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="10,35 70,35 90,20 30,20"/><polygon points="10,35 70,35 70,39 10,39"/><polygon points="70,35 90,20 90,24 70,39"/><rect x="12" y="39" width="6" height="45"/><rect x="64" y="39" width="6" height="45"/><rect x="84" y="24" width="5" height="45"/><rect x="32" y="24" width="5" height="42"/></svg>',
+        'cabinet_tall': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="25" y="10" width="50" height="80" rx="3"/><rect x="29" y="14" width="20" height="36"/><rect x="51" y="14" width="20" height="36"/><line x1="29" y1="26" x2="49" y2="26"/><line x1="29" y1="38" x2="49" y2="38"/><line x1="51" y1="26" x2="71" y2="26"/><line x1="51" y1="38" x2="71" y2="38"/><line x1="46" y1="30" x2="46" y2="34"/><line x1="54" y1="30" x2="54" y2="34"/><rect x="29" y="54" width="42" height="10"/><rect x="29" y="66" width="42" height="10"/><rect x="29" y="78" width="42" height="10"/><line x1="45" y1="59" x2="55" y2="59"/><line x1="45" y1="71" x2="55" y2="71"/><line x1="45" y1="83" x2="55" y2="83"/></svg>',
+        'cabinet_wide': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="40" rx="2"/><rect x="38" y="34" width="24" height="32"/><line x1="38" y1="50" x2="62" y2="50"/><rect x="14" y="34" width="20" height="32"/><rect x="66" y="34" width="20" height="32"/><circle cx="30" cy="50" r="2"/><circle cx="70" cy="50" r="2"/><line x1="15" y1="70" x2="12" y2="82"/><line x1="25" y1="70" x2="25" y2="82"/><line x1="75" y1="70" x2="75" y2="82"/><line x1="85" y1="70" x2="88" y2="82"/></svg>',
+        'cupboard': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="25" y="10" width="50" height="80" rx="3"/><rect x="29" y="14" width="42" height="26"/><line x1="50" y1="14" x2="50" y2="40"/><line x1="29" y1="22" x2="71" y2="22"/><line x1="29" y1="31" x2="71" y2="31"/><circle cx="47" cy="27" r="1"/><circle cx="53" cy="27" r="1"/><rect x="29" y="44" width="42" height="12"/><rect x="33" y="47" width="16" height="9"/><rect x="35" y="49" width="10" height="5"/><rect x="29" y="60" width="20" height="26"/><rect x="51" y="60" width="20" height="26"/><line x1="45" y1="70" x2="45" y2="76"/><line x1="55" y1="70" x2="55" y2="76"/></svg>',
+        'bed': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="30" width="6" height="50" rx="1"/><rect x="16" y="68" width="74" height="6" rx="1"/><rect x="18" y="74" width="5" height="10"/><rect x="78" y="74" width="5" height="10"/><rect x="16" y="52" width="74" height="16" rx="1"/><rect x="20" y="44" width="16" height="8" rx="2"/><path d="M40,50 L86,50 C88,50 90,52 90,54 L90,64 C90,66 88,68 86,68 L76,68"/><line x1="56" y1="50" x2="56" y2="68"/><line x1="72" y1="50" x2="72" y2="68"/></svg>',
+        'color_box': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="25" y="10" width="50" height="80" rx="3"/><rect x="29" y="14" width="42" height="22"/><line x1="29" y1="36" x2="71" y2="36"/><rect x="29" y="39" width="42" height="22"/><line x1="29" y1="61" x2="71" y2="61"/><rect x="29" y="64" width="42" height="22"/><line x1="29" y1="14" x2="35" y2="20"/><line x1="71" y1="14" x2="65" y2="20"/><line x1="35" y1="20" x2="65" y2="20"/><line x1="35" y1="20" x2="35" y2="36"/><line x1="65" y1="20" x2="65" y2="36"/><line x1="29" y1="39" x2="35" y2="45"/><line x1="71" y1="39" x2="65" y2="45"/><line x1="35" y1="45" x2="65" y2="45"/><line x1="35" y1="45" x2="35" y2="61"/><line x1="65" y1="45" x2="65" y2="61"/><line x1="29" y1="64" x2="35" y2="70"/><line x1="71" y1="64" x2="65" y2="70"/><line x1="35" y1="70" x2="65" y2="70"/><line x1="35" y1="70" x2="35" y2="86"/><line x1="65" y1="70" x2="65" y2="86"/></svg>'
+    };
+
     stampButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             stampButtons.forEach(b => b.classList.remove('selected'));
@@ -57,6 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePreview();
         });
     });
+
+    // ダメージマップセレクトボックスのイベント
+    if (damageMapSelect) {
+        damageMapSelect.addEventListener('change', (e) => {
+            currentDamageMap = e.target.value;
+            updatePreview();
+        });
+    }
 
     if (customStampInput) {
         customStampInput.addEventListener('input', (e) => {
@@ -292,20 +317,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const priceValue = parseInt(priceInput.value, 10);
         previewPrice.textContent = !isNaN(priceValue) ? `¥${priceValue.toLocaleString()}` : '¥---';
-        previewPrice.style.fontSize = '70px'; // adjustPriceFontSize 代わり
+        previewPrice.style.fontSize = '60px'; // 70pxから60pxへ縮小
 
         const barcodeVal = generateBarcodeValue(priceInput.value, conditionSelect.value);
         renderBarcode(barcodeSvg, barcodeVal);
 
         timestampDiv.textContent = getFormattedTimestamp();
 
-        if (previewStamp) {
-            if (currentStamp) {
-                previewStamp.textContent = currentStamp;
-                previewStamp.classList.add('active');
-            } else {
-                previewStamp.classList.remove('active');
-            }
+        // スタンプの反映
+        if (currentStamp) {
+            previewStamp.textContent = currentStamp;
+            previewStamp.classList.add('active');
+        } else {
+            previewStamp.classList.remove('active');
+        }
+
+        // ダメージマップの反映
+        if (currentDamageMap && damageMapSVGs[currentDamageMap]) {
+            previewDamageMap.innerHTML = damageMapSVGs[currentDamageMap];
+        } else {
+            previewDamageMap.innerHTML = '';
         }
         
         if (isAutoFittingTitle) {
@@ -531,7 +562,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (customStampInput) customStampInput.value = '';
                 }
 
-                // プレビューの更新
+                // ダメージマップの復元
+                currentDamageMap = item.damageMap || '';
+                if (damageMapSelect) {
+                    damageMapSelect.value = currentDamageMap;
+                }
+
                 updatePreview();
                 
                 // 画面上部へスクロール
@@ -574,6 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
             deliveryOptionText: deliveryOptionsSelect ? deliveryOptionsSelect.options[deliveryOptionsSelect.selectedIndex].text : '',
             price: parseInt(priceInput.value, 10),
             stampText: currentStamp,
+            damageMap: currentDamageMap,
             selected: true // 追加時はデフォルトで選択状態
         };
         printQueue.unshift(item); // 先頭に追加する
@@ -584,9 +621,11 @@ document.addEventListener('DOMContentLoaded', () => {
         notesTextarea.value = '';
         priceInput.value = '';
         currentStamp = '';
+        currentDamageMap = '';
         stampButtons.forEach(b => b.classList.remove('selected'));
         if (clearStampBtn) clearStampBtn.classList.add('selected');
         if (customStampInput) customStampInput.value = '';
+        if (damageMapSelect) damageMapSelect.value = '';
         
         updatePreview();
     });
@@ -607,19 +646,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // スタンプのクリア
             currentStamp = '';
+            currentDamageMap = '';
             stampButtons.forEach(b => b.classList.remove('selected'));
             if (clearStampBtn) clearStampBtn.classList.add('selected');
             if (customStampInput) customStampInput.value = '';
+            if (damageMapSelect) damageMapSelect.value = '';
             
-            updatePreview();
-        });
-    }
-
-    if (customStampInput) {
-        customStampInput.addEventListener('input', (e) => {
-            currentStamp = e.target.value;
-            stampButtons.forEach(b => b.classList.remove('selected'));
-            if (clearStampBtn) clearStampBtn.classList.remove('selected');
             updatePreview();
         });
     }
@@ -755,6 +787,9 @@ document.addEventListener('DOMContentLoaded', () => {
         cardDiv.classList.add('price-card-template');
 
         const stampHTML = data.stampText ? `<div class="card-stamp active">${data.stampText}</div>` : '';
+        const damageMapHTML = (data.damageMap && damageMapSVGs[data.damageMap]) 
+            ? `<div class="damage-map-container">${damageMapSVGs[data.damageMap]}</div>` 
+            : '<div class="damage-map-container"></div>';
 
         const isTitleMultiLine = (data.title || '').includes('\n');
         const titleFontSize = isTitleMultiLine ? 45 : data.titleFontSize;
@@ -769,8 +804,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-row condition-row">${data.condition || '中古'}</div>
             <div class="card-row notes-row" style="font-size: ${data.notesFontSize}px;">${data.notes || ''}</div>
             <div class="card-row preview-delivery-options">${data.deliveryOptionText || ''}</div>
-            <div class="card-row price-row" style="font-size: 70px;">${formattedPrice}</div>
+            <div class="card-row price-row" style="font-size: 60px;">${formattedPrice}</div>
             <svg id="batch-barcode-${index}" class="barcode-svg"></svg>
+            
+            ${damageMapHTML}
     
             <div class="check-section">
                 <div class="check-item">接客者: ＿＿＿＿＿</div>

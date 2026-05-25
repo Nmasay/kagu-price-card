@@ -217,7 +217,7 @@ h1, h2 {
 
 .preview-delivery-options {
     color: #ff0000;
-    font-size: 22px;
+    font-size: 18px;
     padding: 0 15px;
     margin-top: 10px; /* 備考との間に隙間をあける */
     white-space: pre-wrap;
@@ -514,7 +514,7 @@ button {
     }
 
     /* 不要なUI要素は完全に非表示（物理的スペースも消す） */
-    .site-header, #input-form, #print-queue-section, .stamp-controls-panel {
+    .site-header, #input-form, #print-queue-section, .stamp-controls-panel, .damage-map-controls-panel {
         display: none !important;
     }
 
@@ -618,6 +618,24 @@ button {
     /* 個別の行スタイル上書きはプレビューと同じにするため削除 */
     .check-section, .check-section .check-item { visibility: visible !important; }
     .check-section { font-size: 10pt !important; line-height: 1.2 !important; }
+
+    /* ダメージマップ印刷用スタイル */
+    .damage-map-container {
+        position: absolute !important;
+        bottom: 12px !important;
+        left: 80mm !important; /* 金額の右隣（80mm）に指定位置で固定 */
+        width: 30mm !important; /* サイズを30mmに指定変更 */
+        height: 30mm !important; /* サイズを30mmに指定変更 */
+        display: flex !important;
+        visibility: visible !important;
+        z-index: 5 !important;
+    }
+    .damage-map-container svg {
+        visibility: visible !important;
+        stroke: #b0b0b0 !important; /* 印刷時も薄いグレーの線 */
+        fill: none !important;
+        stroke-width: 1.5px !important;
+    }
 }
 
 /* --- スタンプ (斜めリボン) --- */
@@ -665,4 +683,28 @@ button {
 }
 .stamp-btn.selected {
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
+}
+
+/* --- ダメージマップ（家具の線画）のスタイル --- */
+.damage-map-container {
+    position: absolute;
+    bottom: 12px;           /* 下部から少し浮かせた位置 */
+    left: 80mm;             /* 金額の右隣（80mm）に指定位置で固定 */
+    width: 30mm;            /* サイズを30mmに指定変更 */
+    height: 30mm;           /* サイズを30mmに指定変更 */
+    z-index: 5;             /* 背景とテキストの邪魔にならない重ね順 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;    /* 操作の邪魔をしない */
+}
+
+.damage-map-container svg {
+    width: 100%;
+    height: 100%;
+    stroke: #b0b0b0;        /* うすいグレーの線 */
+    fill: none;             /* 塗りつぶしなし */
+    stroke-width: 1.5px;    /* 線の太さ */
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
