@@ -66,8 +66,8 @@
                 <input type="number" id="price" placeholder="税込金額を入力"value="" min="0">
             </div>
             <div class="form-actions">
-                <button type="button" id="add-to-list-button" class="secondary-button">リストに追加</button>
-                <button type="button" id="print-button" class="primary-button">この1枚を印刷</button>
+                <button type="button" id="add-to-list-button" class="action-button secondary-button">リストに追加</button>
+                <button type="button" id="print-button" class="action-button primary-button">この1枚を印刷</button>
             </div>
         </form>
 
@@ -94,16 +94,16 @@
                 <div id="timestamp" class="timestamp-div"></div>
             </div>
             </div>
+        </div>
 
-            <!-- 印刷待ちリストエリア -->
-            <div id="print-queue-section" class="queue-section">
-                <h3>印刷待ちリスト (<span id="queue-count">0</span>件)</h3>
-                <div class="queue-actions">
-                    <button type="button" id="batch-print-button" class="action-button primary-button" disabled>すべて印刷</button>
-                    <button type="button" id="clear-queue-button" class="action-button danger-button" disabled>リストをクリア</button>
-                </div>
-                <ul id="print-queue-list"></ul>
+        <!-- 右カラム（新）：印刷待ちリストエリア -->
+        <div id="print-queue-section" class="queue-section">
+            <h3>印刷待ちリスト (<span id="queue-count">0</span>件)</h3>
+            <div class="queue-actions">
+                <button type="button" id="batch-print-button" class="action-button primary-button" disabled>すべて印刷</button>
+                <button type="button" id="clear-queue-button" class="action-button danger-button" disabled>リストをクリア</button>
             </div>
+            <ul id="print-queue-list"></ul>
         </div>
     </div>
 

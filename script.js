@@ -246,6 +246,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const infoDiv = document.createElement('div');
             infoDiv.classList.add('queue-item-info');
             
+            const topRowDiv = document.createElement('div');
+            topRowDiv.style.display = 'flex';
+            topRowDiv.style.alignItems = 'baseline';
+            topRowDiv.style.gap = '5px';
+            topRowDiv.style.flexWrap = 'wrap';
+            
+            const conditionSpan = document.createElement('span');
+            conditionSpan.textContent = `💳 【${item.condition || '未設定'}】`;
+            conditionSpan.style.fontWeight = 'bold';
+            conditionSpan.style.fontSize = '0.8em';
+            conditionSpan.style.color = item.condition === '中古' ? 'red' : 'green';
+
             const titleSpan = document.createElement('span');
             titleSpan.classList.add('queue-item-title');
             titleSpan.textContent = item.title || '(名称未入力)';
@@ -254,8 +266,19 @@ document.addEventListener('DOMContentLoaded', () => {
             priceSpan.classList.add('queue-item-price');
             priceSpan.textContent = !isNaN(item.price) ? `¥${item.price.toLocaleString()}` : '¥---';
 
-            infoDiv.appendChild(titleSpan);
-            infoDiv.appendChild(priceSpan);
+            topRowDiv.appendChild(conditionSpan);
+            topRowDiv.appendChild(titleSpan);
+            topRowDiv.appendChild(priceSpan);
+
+            if (item.notes) {
+                const notesSpan = document.createElement('span');
+                notesSpan.textContent = `(${item.notes.replace(/\\n/g, ' ')})`; // 複数行の場合はスペースに置換
+                notesSpan.style.fontSize = '0.75em';
+                notesSpan.style.color = '#555';
+                topRowDiv.appendChild(notesSpan);
+            }
+            
+            infoDiv.appendChild(topRowDiv);
 
             const removeBtn = document.createElement('button');
             removeBtn.innerHTML = '&times;';
