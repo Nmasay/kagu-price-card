@@ -216,7 +216,7 @@ h1, h2 {
 
 .preview-delivery-options {
     color: #ff0000;
-    font-size: 14px;
+    font-size: 22px;
     padding: 0 15px;
     margin-top: 10px; /* 備考との間に隙間をあける */
     white-space: pre-wrap;
@@ -495,7 +495,7 @@ button {
     }
     
     /* 不要なUI要素は完全に非表示（物理的スペースも消す） */
-    .site-header, #input-form, #print-queue-section {
+    .site-header, #input-form, #print-queue-section, .stamp-controls-panel {
         display: none !important;
     }
 
@@ -599,4 +599,51 @@ button {
     /* 個別の行スタイル上書きはプレビューと同じにするため削除 */
     .check-section, .check-section .check-item { visibility: visible !important; }
     .check-section { font-size: 10pt !important; line-height: 1.2 !important; }
+}
+
+/* --- スタンプ (斜めリボン) --- */
+.card-stamp {
+    position: absolute;
+    top: 12px;
+    left: -45px;
+    width: 160px;
+    height: 24px;
+    background-color: rgba(230, 0, 0, 0.75);
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    transform: rotate(-45deg);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: none;
+    z-index: 10;
+    letter-spacing: 2px;
+    text-indent: 2px;
+    padding-right: 28px; /* さらに1文字分追加し、合計2文字分(28px)左に寄せる */
+    align-items: center;
+    justify-content: center;
+}
+.card-stamp.active {
+    display: flex; /* ブロック要素ではなくFlexコンテナとして表示 */
+}
+
+/* --- スタンプ選択ボタン --- */
+.stamp-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 20px;
+    background-color: #e60000;
+    color: white;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+}
+.stamp-btn:hover {
+    opacity: 0.8;
+}
+.stamp-btn:active {
+    transform: scale(0.95);
+}
+.stamp-btn.selected {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
 }

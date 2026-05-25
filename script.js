@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ボタン・コンテナ群
     const printButton = document.getElementById('print-button');
     const addToListButton = document.getElementById('add-to-list-button');
+    const clearFormButton = document.getElementById('clear-form-button');
     const batchPrintButton = document.getElementById('batch-print-button');
     const clearQueueButton = document.getElementById('clear-queue-button');
     const printQueueList = document.getElementById('print-queue-list');
@@ -39,6 +40,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // localStorageから保存済みのキューを取得、なければ空配列
     let printQueue = JSON.parse(localStorage.getItem('kagu-price-card-queue')) || [];
     let draggedItemIndex = null; // ドラッグ中のアイテムインデックスを保持
+    let currentStamp = ''; // 現在選択されているスタンプ
+
+    // --- スタンプボタンの初期化 ---
+    const stampButtons = document.querySelectorAll('.stamp-btn');
+    const previewStamp = document.getElementById('preview-stamp');
+    const customStampInput = document.getElementById('custom-stamp-input');
+    const clearStampBtn = document.querySelector('.clear-stamp-btn');
+    
+    stampButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            stampButtons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            currentStamp = btn.dataset.stamp;
+            if (customStampInput) customStampInput.value = ''; // プリセット選択時は自由入力をクリア
+            updatePreview();
+        });
+    });
+
+    if (customStampInput) {
+        customStampInput.addEventListener('input', (e) => {
+            currentStamp = e.target.value.trim();
+            // プリセットボタンの選択状態を解除
+            stampButtons.forEach(b => b.classList.remove('selected'));
+            if (currentStamp === '' && clearStampBtn) {
+                clearStampBtn.classList.add('selected');
+            }
+            updatePreview();
+        });
+    }
+    
+    // 初期状態で「なし」を選択
+    if (clearStampBtn) clearStampBtn.classList.add('selected');
 
     // --- 履歴管理用クラス ---
     class HistoryManager {
@@ -235,6 +268,15 @@ document.addEventListener('DOMContentLoaded', () => {
         renderBarcode(barcodeSvg, barcodeVal);
 
         timestampDiv.textContent = getFormattedTimestamp();
+
+        if (previewStamp) {
+            if (currentStamp) {
+                previewStamp.textContent = currentStamp;
+                previewStamp.classList.add('active');
+            } else {
+                previewStamp.classList.remove('active');
+            }
+        }
     }
 
     // --- 印刷待ちキュー管理 ---
@@ -388,6 +430,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (titleFontSizeValueSpan) titleFontSizeValueSpan.textContent = item.titleFontSize;
                 if (notesFontSizeValueSpan) notesFontSizeValueSpan.textContent = item.notesFontSize;
 
+                // スタンプの復元
+                currentStamp = item.stampText || '';
+                let matchedPreset = false;
+                stampButtons.forEach(b => {
+                    b.classList.remove('selected');
+                    if (currentStamp && b.dataset.stamp === currentStamp) {
+                        b.classList.add('selected');
+                        matchedPreset = true;
+                    }
+                });
+
+                if (!currentStamp) {
+                    if (clearStampBtn) clearStampBtn.classList.add('selected');
+                    if (customStampInput) customStampInput.value = '';
+                } else if (!matchedPreset) {
+                    // プリセットにない文字なら自由入力欄に入れる
+                    if (customStampInput) customStampInput.value = currentStamp;
+                } else {
+                    if (customStampInput) customStampInput.value = '';
+                }
+
                 // プレビューの更新
                 updatePreview();
                 
@@ -428,17 +491,56 @@ document.addEventListener('DOMContentLoaded', () => {
             notesFontSize: notesFontSizeInput.value,
             deliveryOptionText: deliveryOptionsSelect ? deliveryOptionsSelect.options[deliveryOptionsSelect.selectedIndex].text : '',
             price: parseInt(priceInput.value, 10),
+            stampText: currentStamp,
             selected: true // 追加時はデフォルトで選択状態
         };
         printQueue.unshift(item); // 先頭に追加する
         updateQueueUI();
         
-        // 追加後、入力フォームを空にする（任意）
+        // 追加後、入力フォームをクリア
         titleInput.value = '';
         notesTextarea.value = '';
         priceInput.value = '';
+        currentStamp = '';
+        stampButtons.forEach(b => b.classList.remove('selected'));
+        if (clearStampBtn) clearStampBtn.classList.add('selected');
+        if (customStampInput) customStampInput.value = '';
+        
         updatePreview();
     });
+
+    if (clearFormButton) {
+        clearFormButton.addEventListener('click', () => {
+            titleInput.value = '';
+            titleFontSizeInput.value = '55'; // 初期値
+            conditionSelect.selectedIndex = 0; // 中古
+            notesTextarea.value = '';
+            notesFontSizeInput.value = '30'; // 初期値
+            if (deliveryOptionsSelect) deliveryOptionsSelect.selectedIndex = 0;
+            priceInput.value = '';
+            
+            // スライダー横のテキストを更新
+            if (titleFontSizeValueSpan) titleFontSizeValueSpan.textContent = '55';
+            if (notesFontSizeValueSpan) notesFontSizeValueSpan.textContent = '30';
+            
+            // スタンプのクリア
+            currentStamp = '';
+            stampButtons.forEach(b => b.classList.remove('selected'));
+            if (clearStampBtn) clearStampBtn.classList.add('selected');
+            if (customStampInput) customStampInput.value = '';
+            
+            updatePreview();
+        });
+    }
+
+    if (customStampInput) {
+        customStampInput.addEventListener('input', (e) => {
+            currentStamp = e.target.value;
+            stampButtons.forEach(b => b.classList.remove('selected'));
+            if (clearStampBtn) clearStampBtn.classList.remove('selected');
+            updatePreview();
+        });
+    }
 
     clearQueueButton.addEventListener('click', () => {
         if (confirm('印刷待ちリストをすべてクリアしますか？')) {
@@ -563,7 +665,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 印刷処理 ---
     function buildPrintCardElement(data, index) {
         const cardDiv = document.createElement('div');
-        cardDiv.className = 'price-card-template';
+        cardDiv.classList.add('price-card-template');
+
+        const stampHTML = data.stampText ? `<div class="card-stamp active">${data.stampText}</div>` : '';
 
         const isTitleMultiLine = (data.title || '').includes('\n');
         const titleFontSize = isTitleMultiLine ? 45 : data.titleFontSize;
@@ -573,6 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 動的なHTMLを構築
         cardDiv.innerHTML = `
+            ${stampHTML}
             <div class="card-row title-row" style="font-size: ${titleFontSize}px; min-height: ${minHeight};">${data.title || '商品タイトル'}</div>
             <div class="card-row condition-row">${data.condition || '中古'}</div>
             <div class="card-row notes-row" style="font-size: ${data.notesFontSize}px;">${data.notes || ''}</div>

@@ -65,9 +65,15 @@
                 <label for="price">金額 (税込):</label>
                 <input type="number" id="price" placeholder="税込金額を入力"value="" min="0">
             </div>
-            <div class="form-actions">
-                <button type="button" id="add-to-list-button" class="action-button secondary-button">リストに追加</button>
-                <button type="button" id="print-button" class="action-button primary-button">この1枚を印刷</button>
+            <div class="form-actions" style="display: flex; gap: 8px; width: 100%;">
+                <button type="button" id="add-to-list-button" class="action-button secondary-button" style="flex: 1; padding: 10px 0; font-size: 14px; width: auto;">リストに追加</button>
+                <button type="button" id="print-button" class="action-button primary-button" style="flex: 1; padding: 10px 0; font-size: 14px; width: auto;">この1枚を印刷</button>
+                <button type="button" id="clear-form-button" class="action-button danger-button" style="flex: 0 0 50px; padding: 10px 0; display: flex; align-items: center; justify-content: center; width: auto;" title="フォームをクリア">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                        <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                    </svg>
+                </button>
             </div>
         </form>
 
@@ -76,6 +82,7 @@
             <div id="preview-container">
             <!-- プレビューエリア -->
             <div id="price-card" class="price-card-template">
+                <div id="preview-stamp" class="card-stamp"></div>
                 <div class="card-row title-row" id="preview-title">商品タイトル</div>
                 <div class="card-row condition-row" id="preview-condition">中古</div>
                 <div class="card-row notes-row" id="preview-notes"></div>
@@ -93,6 +100,19 @@
 
                 <div id="timestamp" class="timestamp-div"></div>
             </div>
+            </div>
+
+            <!-- スタンプ選択パネル -->
+            <div class="stamp-controls-panel" style="background: var(--bg-overlay); padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                <h4 style="margin-top: 0; margin-bottom: 10px; font-size: 14px;">🎯 スタンプ追加（左上角）</h4>
+                <div class="stamp-buttons" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="stamp-btn clear-stamp-btn" data-stamp="" style="background-color: #f8f9fa; color: #333; border: 1px solid #ccc;">🚫 なし</button>
+                    <button type="button" class="stamp-btn" data-stamp="NEW">NEW</button>
+                    <button type="button" class="stamp-btn" data-stamp="値下げ!">値下げ!</button>
+                    <button type="button" class="stamp-btn" data-stamp="美品">美品</button>
+                    <button type="button" class="stamp-btn" data-stamp="現品限り">現品限り</button>
+                    <input type="text" id="custom-stamp-input" placeholder="自由入力(6文字まで)" maxlength="6" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; width: 130px; margin-left: 10px;">
+                </div>
             </div>
         </div>
 
