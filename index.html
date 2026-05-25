@@ -104,6 +104,10 @@
                     <input type="checkbox" id="select-all-checkbox" checked> 全選択
                 </label>
             </div>
+            <div class="queue-import" style="margin-bottom: 10px;">
+                <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                <button type="button" id="import-csv-button" class="action-button" style="width: 100%; background-color: #6c757d; color: white;">📁 CSV一括読み込み</button>
+            </div>
             <div class="queue-actions">
                 <button type="button" id="batch-print-button" class="action-button primary-button" disabled>選択項目を印刷</button>
                 <button type="button" id="clear-queue-button" class="action-button danger-button" disabled>リストをクリア</button>

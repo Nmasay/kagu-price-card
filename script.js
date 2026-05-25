@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 印刷待ちキュー ---
     // localStorageから保存済みのキューを取得、なければ空配列
     let printQueue = JSON.parse(localStorage.getItem('kagu-price-card-queue')) || [];
+    let draggedItemIndex = null; // ドラッグ中のアイテムインデックスを保持
 
     // --- 履歴管理用クラス ---
     class HistoryManager {
@@ -256,10 +257,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
         printQueue.forEach((item, index) => {
             const li = document.createElement('li');
-            
-            // 左側：チェックボックス
+            li.draggable = true;
+
+            // ドラッグ＆ドロップのイベント設定
+            li.addEventListener('dragstart', (e) => {
+                draggedItemIndex = index;
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', index); // Firefox等で必要
+                setTimeout(() => li.style.opacity = '0.5', 0);
+            });
+
+            li.addEventListener('dragend', () => {
+                li.style.opacity = '1';
+                draggedItemIndex = null;
+            });
+
+            li.addEventListener('dragover', (e) => {
+                e.preventDefault(); // ドロップを許可するために必須
+                e.dataTransfer.dropEffect = 'move';
+            });
+
+            li.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                if (draggedItemIndex !== null && draggedItemIndex !== index) {
+                    li.classList.add('drag-over');
+                }
+            });
+
+            li.addEventListener('dragleave', () => {
+                li.classList.remove('drag-over');
+            });
+
+            li.addEventListener('drop', (e) => {
+                e.preventDefault();
+                li.classList.remove('drag-over');
+                if (draggedItemIndex === null || draggedItemIndex === index) return;
+
+                // 配列内の順序を入れ替える
+                const draggedItem = printQueue.splice(draggedItemIndex, 1)[0];
+                printQueue.splice(index, 0, draggedItem);
+                updateQueueUI();
+            });
+
+            // 左側：ドラッグハンドルとチェックボックス
             const checkboxDiv = document.createElement('div');
             checkboxDiv.classList.add('queue-item-controls');
+            
+            const dragHandle = document.createElement('span');
+            dragHandle.innerHTML = '&#9776;'; // ☰ アイコン
+            dragHandle.classList.add('drag-handle');
+            dragHandle.title = 'ドラッグして移動';
+            checkboxDiv.appendChild(dragHandle);
+
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.classList.add('queue-item-checkbox');
@@ -309,33 +358,43 @@ document.addEventListener('DOMContentLoaded', () => {
             
             infoDiv.appendChild(topRowDiv);
 
-            // 右側：アクションボタン（上、下、削除）
+            // 右側：アクションボタン（編集、上、下、削除）
             const actionsDiv = document.createElement('div');
             actionsDiv.classList.add('queue-item-controls');
 
-            if (index > 0) {
-                const upBtn = document.createElement('button');
-                upBtn.innerHTML = '↑';
-                upBtn.classList.add('move-btn');
-                upBtn.title = '上へ移動';
-                upBtn.onclick = () => {
-                    [printQueue[index - 1], printQueue[index]] = [printQueue[index], printQueue[index - 1]];
-                    updateQueueUI();
-                };
-                actionsDiv.appendChild(upBtn);
-            }
+            const editBtn = document.createElement('button');
+            editBtn.innerHTML = '✎';
+            editBtn.classList.add('move-btn');
+            editBtn.title = 'フォームに読み込む（再編集）';
+            editBtn.onclick = () => {
+                // フォームに値を復元
+                titleInput.value = item.title;
+                titleFontSizeInput.value = item.titleFontSize;
+                conditionSelect.value = item.condition;
+                notesTextarea.value = item.notes;
+                notesFontSizeInput.value = item.notesFontSize;
+                priceInput.value = isNaN(item.price) ? '' : item.price;
+                
+                if (deliveryOptionsSelect && item.deliveryOptionText) {
+                    for (let i = 0; i < deliveryOptionsSelect.options.length; i++) {
+                        if (deliveryOptionsSelect.options[i].text === item.deliveryOptionText) {
+                            deliveryOptionsSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
 
-            if (index < printQueue.length - 1) {
-                const downBtn = document.createElement('button');
-                downBtn.innerHTML = '↓';
-                downBtn.classList.add('move-btn');
-                downBtn.title = '下へ移動';
-                downBtn.onclick = () => {
-                    [printQueue[index + 1], printQueue[index]] = [printQueue[index], printQueue[index + 1]];
-                    updateQueueUI();
-                };
-                actionsDiv.appendChild(downBtn);
-            }
+                // スライダーの表示値を更新
+                if (titleFontSizeValueSpan) titleFontSizeValueSpan.textContent = item.titleFontSize;
+                if (notesFontSizeValueSpan) notesFontSizeValueSpan.textContent = item.notesFontSize;
+
+                // プレビューの更新
+                updatePreview();
+                
+                // 画面上部へスクロール
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            };
+            actionsDiv.appendChild(editBtn);
 
             const removeBtn = document.createElement('button');
             removeBtn.innerHTML = '&times;';
@@ -387,6 +446,119 @@ document.addEventListener('DOMContentLoaded', () => {
             updateQueueUI();
         }
     });
+
+    // --- CSV一括読み込み処理 ---
+    const importCsvButton = document.getElementById('import-csv-button');
+    const csvFileInput = document.getElementById('csv-file-input');
+
+    // 簡易CSVパーサー
+    function parseCSV(str) {
+        const arr = [];
+        let quote = false;
+        let col = '', row = [];
+        for (let c = 0; c < str.length; c++) {
+            let cc = str[c], nc = str[c+1];
+            if (cc === '"' && quote && nc === '"') { col += cc; ++c; continue; }
+            if (cc === '"') { quote = !quote; continue; }
+            if (cc === ',' && !quote) { row.push(col); col = ''; continue; }
+            if (cc === '\n' && !quote) {
+                if (col.endsWith('\r')) col = col.slice(0, -1);
+                row.push(col); arr.push(row);
+                col = ''; row = [];
+                continue;
+            }
+            col += cc;
+        }
+        if (col.endsWith('\r')) col = col.slice(0, -1);
+        row.push(col); arr.push(row);
+        return arr;
+    }
+
+    if (importCsvButton && csvFileInput) {
+        importCsvButton.addEventListener('click', () => {
+            csvFileInput.click();
+        });
+
+        csvFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const text = ev.target.result;
+                const rows = parseCSV(text);
+                
+                if (rows.length < 2) {
+                    alert('データが見つかりません。');
+                    return;
+                }
+
+                // 1行目からヘッダーのインデックスを特定
+                const headers = rows[0].map(h => h.trim());
+                const titleIdx = headers.indexOf('商品名');
+                const priceIdx = headers.indexOf('金額');
+                const conditionIdx = headers.indexOf('状態');
+                const notesIdx = headers.indexOf('備考');
+
+                if (titleIdx === -1 || priceIdx === -1) {
+                    alert('CSVの1行目に「商品名」と「金額」の見出しが必要です。');
+                    return;
+                }
+
+                const newItems = [];
+                for (let i = 1; i < rows.length; i++) {
+                    const row = rows[i];
+                    if (row.length === 1 && row[0].trim() === '') continue; // 空行スキップ
+
+                    const title = row[titleIdx] ? row[titleIdx].trim() : '';
+                    const priceStr = row[priceIdx] ? row[priceIdx].replace(/[^0-9]/g, '') : '';
+                    const price = parseInt(priceStr, 10);
+                    
+                    if (!title) continue; // 商品名がない行はスキップ
+
+                    let condition = '中古';
+                    if (conditionIdx !== -1 && row[conditionIdx]) {
+                        condition = row[conditionIdx].trim();
+                        if (!condition) condition = '中古';
+                    }
+
+                    let notes = '';
+                    if (notesIdx !== -1 && row[notesIdx]) {
+                        notes = row[notesIdx].trim();
+                    }
+
+                    // 配列オプションは常にフォームの先頭の選択肢をデフォルトとする
+                    let deliveryOptionText = '';
+                    if (deliveryOptionsSelect && deliveryOptionsSelect.options.length > 0) {
+                        deliveryOptionText = deliveryOptionsSelect.options[0].text;
+                    }
+
+                    newItems.push({
+                        title: title,
+                        titleFontSize: 50, // ユーザー指定のデフォルト値
+                        condition: condition,
+                        notes: notes,
+                        notesFontSize: 30, // ユーザー指定のデフォルト値
+                        deliveryOptionText: deliveryOptionText,
+                        price: isNaN(price) ? NaN : price,
+                        selected: true // デフォルトでチェックオン
+                    });
+                }
+
+                if (newItems.length > 0) {
+                    // Excelの上の行をリストの上部に配置（そのまま結合）
+                    printQueue = [...newItems, ...printQueue];
+                    updateQueueUI();
+                } else {
+                    alert('有効なデータがありませんでした。');
+                }
+                
+                // リセットして同じファイルを再度選べるようにする
+                csvFileInput.value = '';
+            };
+            reader.readAsText(file);
+        });
+    }
 
     // --- 印刷処理 ---
     function buildPrintCardElement(data, index) {

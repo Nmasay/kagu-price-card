@@ -441,6 +441,19 @@ button {
     align-items: center;
     gap: 5px;
 }
+.drag-handle {
+    cursor: grab;
+    color: #999;
+    font-size: 1.2em;
+    padding: 0 5px;
+}
+.drag-handle:active {
+    cursor: grabbing;
+}
+#print-queue-list li.drag-over {
+    border-top: 2px dashed #007bff;
+    background-color: #f0f8ff;
+}
 .queue-item-checkbox {
     margin-right: 10px;
     cursor: pointer;
