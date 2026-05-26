@@ -458,11 +458,7 @@ button {
 .move-btn:hover { background: #ddd; }
 .queue-item-title { font-weight: bold; font-size: 0.9em; }
 .queue-item-price { font-size: 0.8em; color: #555; }
-.queue-actions {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px; /* ボタンとリストの間に隙間 */
-}
+
 
 /* --- 印刷用スタイル --- */
 @media print {

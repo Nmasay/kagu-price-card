@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearFormButton = document.getElementById('clear-form-button');
     const batchPrintButton = document.getElementById('batch-print-button');
     const clearQueueButton = document.getElementById('clear-queue-button');
+    const exportCsvButton = document.getElementById('export-csv-button');
     const printQueueList = document.getElementById('print-queue-list');
     const queueCountSpan = document.getElementById('queue-count');
     const printBatchContainer = document.getElementById('print-batch-container');
@@ -600,6 +601,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const hasSelectedItems = printQueue.some(item => item.selected !== false);
         batchPrintButton.disabled = !hasSelectedItems;
         clearQueueButton.disabled = !hasItems;
+        if (exportCsvButton) {
+            exportCsvButton.disabled = !hasItems;
+        }
         
         syncQueueHeight();
     }
@@ -672,6 +676,57 @@ document.addEventListener('DOMContentLoaded', () => {
     // ウィンドウリサイズ時にも高さを同期
     window.addEventListener('resize', syncQueueHeight);
 
+    // --- CSV一括書き出し処理 ---
+    function exportToCSV() {
+        if (printQueue.length === 0) return;
+
+        const headers = ['商品名', '金額', '状態', '備考', 'タイトルフォントサイズ', '備考フォントサイズ', '配送オプション', 'スタンプ', 'ダメージマップ'];
+        
+        function escapeCSVField(field) {
+            if (field === null || field === undefined) return '';
+            const str = String(field);
+            if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
+        }
+
+        const csvRows = [headers.map(escapeCSVField).join(',')];
+
+        printQueue.forEach(item => {
+            const row = [
+                item.title || '',
+                isNaN(item.price) ? '' : item.price,
+                item.condition || '中古',
+                item.notes || '',
+                item.titleFontSize || 50,
+                item.notesFontSize || 30,
+                item.deliveryOptionText || '',
+                item.stampText || '',
+                item.damageMap || ''
+            ];
+            csvRows.push(row.map(escapeCSVField).join(','));
+        });
+
+        // Excelの文字化けを防ぐため、UTF-8 BOM (\uFEFF) を付与
+        const csvContent = '\uFEFF' + csvRows.join('\n');
+        window.lastExportedCSV = csvContent; // デバッグ用
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'price_cards.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    if (exportCsvButton) {
+        exportCsvButton.addEventListener('click', exportToCSV);
+    }
+
     // --- CSV一括読み込み処理 ---
     const importCsvButton = document.getElementById('import-csv-button');
     const csvFileInput = document.getElementById('csv-file-input');
@@ -699,6 +754,110 @@ document.addEventListener('DOMContentLoaded', () => {
         return arr;
     }
 
+    function importCSVText(text) {
+        const rows = parseCSV(text);
+        
+        if (rows.length < 2) {
+            alert('データが見つかりません。');
+            return;
+        }
+
+        // 1行目からヘッダーのインデックスを特定
+        // BOMを除去しておく
+        const headers = rows[0].map(h => h.trim().replace(/^\uFEFF/, ''));
+        const titleIdx = headers.indexOf('商品名');
+        const priceIdx = headers.indexOf('金額');
+        const conditionIdx = headers.indexOf('状態');
+        const notesIdx = headers.indexOf('備考');
+        const titleFontSizeIdx = headers.indexOf('タイトルフォントサイズ');
+        const notesFontSizeIdx = headers.indexOf('備考フォントサイズ');
+        const deliveryOptionTextIdx = headers.indexOf('配送オプション');
+        const stampTextIdx = headers.indexOf('スタンプ');
+        const damageMapIdx = headers.indexOf('ダメージマップ');
+
+        if (titleIdx === -1 || priceIdx === -1) {
+            alert('CSVの1行目に「商品名」と「金額」の見出しが必要です。');
+            return;
+        }
+
+        const newItems = [];
+        for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (row.length === 1 && row[0].trim() === '') continue; // 空行スキップ
+
+            const title = row[titleIdx] ? row[titleIdx].trim() : '';
+            const priceStr = row[priceIdx] ? row[priceIdx].replace(/[^0-9]/g, '') : '';
+            const price = parseInt(priceStr, 10);
+            
+            if (!title) continue; // 商品名がない行はスキップ
+
+            let condition = '中古';
+            if (conditionIdx !== -1 && row[conditionIdx]) {
+                condition = row[conditionIdx].trim();
+                if (!condition) condition = '中古';
+            }
+
+            let notes = '';
+            if (notesIdx !== -1 && row[notesIdx]) {
+                notes = row[notesIdx].trim();
+            }
+
+            // 保存時のフォントサイズや配送オプション、スタンプ、ダメージマップがあれば読み込む
+            let titleFontSize = 50;
+            if (titleFontSizeIdx !== -1 && row[titleFontSizeIdx]) {
+                const fs = parseInt(row[titleFontSizeIdx], 10);
+                if (!isNaN(fs)) titleFontSize = fs;
+            }
+
+            let notesFontSize = 30;
+            if (notesFontSizeIdx !== -1 && row[notesFontSizeIdx]) {
+                const fs = parseInt(row[notesFontSizeIdx], 10);
+                if (!isNaN(fs)) notesFontSize = fs;
+            }
+
+            let deliveryOptionText = '';
+            if (deliveryOptionTextIdx !== -1 && row[deliveryOptionTextIdx]) {
+                deliveryOptionText = row[deliveryOptionTextIdx].trim();
+            }
+            if (!deliveryOptionText && deliveryOptionsSelect && deliveryOptionsSelect.options.length > 0) {
+                deliveryOptionText = deliveryOptionsSelect.options[0].text;
+            }
+
+            let stampText = '';
+            if (stampTextIdx !== -1 && row[stampTextIdx]) {
+                stampText = row[stampTextIdx].trim();
+            }
+
+            let damageMap = '';
+            if (damageMapIdx !== -1 && row[damageMapIdx]) {
+                damageMap = row[damageMapIdx].trim();
+            }
+
+            newItems.push({
+                title: title,
+                titleFontSize: titleFontSize,
+                condition: condition,
+                notes: notes,
+                notesFontSize: notesFontSize,
+                deliveryOptionText: deliveryOptionText,
+                price: isNaN(price) ? NaN : price,
+                stampText: stampText,
+                damageMap: damageMap,
+                selected: true // デフォルトでチェックオン
+            });
+        }
+
+        if (newItems.length > 0) {
+            printQueue = [...newItems, ...printQueue];
+            updateQueueUI();
+        } else {
+            alert('有効なデータがありませんでした。');
+        }
+    }
+
+    // デバッグ・テスト用の窓口
+    window.importCSVDirectly = importCSVText;
+
     if (importCsvButton && csvFileInput) {
         importCsvButton.addEventListener('click', () => {
             csvFileInput.click();
@@ -711,73 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const reader = new FileReader();
             reader.onload = (ev) => {
                 const text = ev.target.result;
-                const rows = parseCSV(text);
-                
-                if (rows.length < 2) {
-                    alert('データが見つかりません。');
-                    return;
-                }
-
-                // 1行目からヘッダーのインデックスを特定
-                const headers = rows[0].map(h => h.trim());
-                const titleIdx = headers.indexOf('商品名');
-                const priceIdx = headers.indexOf('金額');
-                const conditionIdx = headers.indexOf('状態');
-                const notesIdx = headers.indexOf('備考');
-
-                if (titleIdx === -1 || priceIdx === -1) {
-                    alert('CSVの1行目に「商品名」と「金額」の見出しが必要です。');
-                    return;
-                }
-
-                const newItems = [];
-                for (let i = 1; i < rows.length; i++) {
-                    const row = rows[i];
-                    if (row.length === 1 && row[0].trim() === '') continue; // 空行スキップ
-
-                    const title = row[titleIdx] ? row[titleIdx].trim() : '';
-                    const priceStr = row[priceIdx] ? row[priceIdx].replace(/[^0-9]/g, '') : '';
-                    const price = parseInt(priceStr, 10);
-                    
-                    if (!title) continue; // 商品名がない行はスキップ
-
-                    let condition = '中古';
-                    if (conditionIdx !== -1 && row[conditionIdx]) {
-                        condition = row[conditionIdx].trim();
-                        if (!condition) condition = '中古';
-                    }
-
-                    let notes = '';
-                    if (notesIdx !== -1 && row[notesIdx]) {
-                        notes = row[notesIdx].trim();
-                    }
-
-                    // 配列オプションは常にフォームの先頭の選択肢をデフォルトとする
-                    let deliveryOptionText = '';
-                    if (deliveryOptionsSelect && deliveryOptionsSelect.options.length > 0) {
-                        deliveryOptionText = deliveryOptionsSelect.options[0].text;
-                    }
-
-                    newItems.push({
-                        title: title,
-                        titleFontSize: 50, // ユーザー指定のデフォルト値
-                        condition: condition,
-                        notes: notes,
-                        notesFontSize: 30, // ユーザー指定のデフォルト値
-                        deliveryOptionText: deliveryOptionText,
-                        price: isNaN(price) ? NaN : price,
-                        selected: true // デフォルトでチェックオン
-                    });
-                }
-
-                if (newItems.length > 0) {
-                    // Excelの上の行をリストの上部に配置（そのまま結合）
-                    printQueue = [...newItems, ...printQueue];
-                    updateQueueUI();
-                } else {
-                    alert('有効なデータがありませんでした。');
-                }
-                
+                importCSVText(text);
                 // リセットして同じファイルを再度選べるようにする
                 csvFileInput.value = '';
             };
