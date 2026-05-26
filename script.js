@@ -739,6 +739,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (damageMapSelect) damageMapSelect.value = '';
             
             updatePreview();
+            
+            // ユーザー指定: クリアした後にページをリロードする
+            location.reload();
         });
     }
 
@@ -854,9 +857,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (codeValue && svgElement) {
             JsBarcode(svgElement, codeValue, {
                 format: "EAN13",
-                width: 1.1,          // バーの太さ比率を最適化して感度向上
-                height: 20,          // CSSの厚み(20px)に完全同調
-                displayValue: false, // 数字・テキスト非表示（バーのみ）
+                width: 1.1,          // ユーザー指定: 線の太さを少し広げて読みやすく調整
+                height: 22,          // ユーザー指定: バーの長さを広げてスキャン性を向上
+                displayValue: true,  // ユーザー指定: 手動復元のために数値も表示！
+                fontSize: 8,         // カード上で綺麗に読める極小フォント
+                textMargin: 1,       // バーと数値の隙間を最小化
                 margin: 0,
                 background: "transparent"
             });

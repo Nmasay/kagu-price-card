@@ -678,14 +678,14 @@ button {
     stroke-linejoin: round;
 }
 
-/* --- 復元用バーコード（右端・縦向き・バーのみ）のラッパースタイル --- */
+/* --- 復元用バーコード（右端・縦向き）のラッパースタイル --- */
 .restore-barcode-wrapper {
     position: absolute;
     top: 50%;
-    right: 2px;             /* 極限まで右端のフチ（余白）に寄せる */
-    width: 80px;            /* 長さを80pxに少し拡張（スキャン感度向上） */
-    height: 20px;           /* 厚みを20pxに少し拡張（スキャナーの狙いやすさ向上） */
-    transform: translateY(-50%) rotate(90deg); /* 親コンテナごと確実に90度回転させて縦に中央寄せ */
+    right: -16px;           /* right: -13px からさらに3px右（外側）へ移動し、完全に被りを解消 */
+    width: 95px;            /* JsBarcodeのwidth: 1.1 変更に伴う全体の長さに合わせ拡張 */
+    height: 38px;           /* JsBarcodeのheight: 22 変更に伴う全体の厚みに合わせ拡張 */
+    transform: translateY(-50%) rotate(-90deg); /* rotate(90deg) から rotate(-90deg) へ変更し180度反転 */
     transform-origin: center center;
     z-index: 10;
     display: flex;
