@@ -46,7 +46,7 @@ h1, h2 {
     flex: 0 0 auto; /* 横幅はプレビューのサイズに合わせる（伸びない） */
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 10px; /* パネル間の隙間を狭める */
 }
 
 #preview-container {
@@ -221,7 +221,7 @@ h1, h2 {
 .barcode-svg {
     position: absolute;
     top: 150px;
-    right: 30px;
+    right: 45px;            /* 右端の縦型バーコードと被らないように少し左へずらす */
     width: auto;
     z-index: 10;
 }
@@ -230,7 +230,7 @@ h1, h2 {
 .timestamp-div {
     position: absolute;
     top: 130px; /* バーコード(top: 150px)の直上に配置 */
-    right: 30px; /* バーコードと右端を揃える */
+    right: 45px;            /* バーコードの右端と揃える */
     font-size: 14px;
     color: #666;
     z-index: 10;
@@ -483,7 +483,7 @@ button {
     }
 
     /* 不要なUI要素は完全に非表示（物理的スペースも消す） */
-    .site-header, #input-form, #print-queue-section, .stamp-controls-panel, .damage-map-controls-panel {
+    .site-header, #input-form, #print-queue-section, .stamp-controls-panel, .damage-map-controls-panel, .restore-controls-panel {
         display: none !important;
     }
 
@@ -581,8 +581,8 @@ button {
         z-index: 10 !important;
         visibility: visible !important;
     }
-    .barcode-svg { top: 150px !important; right: 30px !important; }
-    .timestamp-div { top: 130px !important; right: 30px !important; font-size: 10pt !important; color: #555 !important; }
+    .barcode-svg { top: 150px !important; right: 45px !important; }
+    .timestamp-div { top: 130px !important; right: 45px !important; font-size: 10pt !important; color: #555 !important; }
     
     /* 個別の行スタイル上書きはプレビューと同じにするため削除 */
     .check-section, .check-section .check-item { visibility: visible !important; }
@@ -676,4 +676,42 @@ button {
     stroke-width: 1.5px;    /* 線の太さ */
     stroke-linecap: round;
     stroke-linejoin: round;
+}
+
+/* --- 復元用バーコード（右端・縦向き・バーのみ）のラッパースタイル --- */
+.restore-barcode-wrapper {
+    position: absolute;
+    top: 50%;
+    right: 2px;             /* 極限まで右端のフチ（余白）に寄せる */
+    width: 80px;            /* 長さを80pxに少し拡張（スキャン感度向上） */
+    height: 20px;           /* 厚みを20pxに少し拡張（スキャナーの狙いやすさ向上） */
+    transform: translateY(-50%) rotate(90deg); /* 親コンテナごと確実に90度回転させて縦に中央寄せ */
+    transform-origin: center center;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.restore-barcode-wrapper svg {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* 復元パネル内の入力フォームスタイル調整 */
+#restore-barcode-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+#restore-barcode-input:focus {
+    border-color: #17a2b8;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
 }
