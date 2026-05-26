@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const notesFontSizeInput = document.getElementById('notes-font-size');
     const notesFontSizeValueSpan = document.getElementById('notes-font-size-value');
     const priceInput = document.getElementById('price');
+    const priceBeforeTaxInput = document.getElementById('price-before-tax');
     const deliveryOptionsSelect = document.getElementById('delivery-options');
     
     // ボタン・コンテナ群
@@ -602,6 +603,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 notesTextarea.value = item.notes;
                 notesFontSizeInput.value = item.notesFontSize;
                 priceInput.value = isNaN(item.price) ? '' : item.price;
+                if (priceBeforeTaxInput) {
+                    priceBeforeTaxInput.value = isNaN(item.price) ? '' : Math.round(item.price / 1.1);
+                }
                 
                 if (deliveryOptionsSelect && item.deliveryOptionText) {
                     for (let i = 0; i < deliveryOptionsSelect.options.length; i++) {
@@ -705,6 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
             titleInput.value = '';
             notesTextarea.value = '';
             priceInput.value = '';
+            if (priceBeforeTaxInput) priceBeforeTaxInput.value = '';
             currentStamp = '';
             currentDamageMap = '';
             stampButtons.forEach(b => b.classList.remove('selected'));
@@ -725,6 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
             notesFontSizeInput.value = '30'; // 初期値
             if (deliveryOptionsSelect) deliveryOptionsSelect.selectedIndex = 0;
             priceInput.value = '';
+            if (priceBeforeTaxInput) priceBeforeTaxInput.value = '';
             
             // スライダー横のテキストを更新
             if (titleFontSizeValueSpan) titleFontSizeValueSpan.textContent = '55';
@@ -914,6 +920,9 @@ document.addEventListener('DOMContentLoaded', () => {
             notesTextarea.value = product.notes || '';
             notesFontSizeInput.value = product.notesFontSize || 30;
             priceInput.value = isNaN(product.price) ? '' : product.price;
+            if (priceBeforeTaxInput) {
+                priceBeforeTaxInput.value = isNaN(product.price) ? '' : Math.round(product.price / 1.1);
+            }
 
             if (deliveryOptionsSelect && product.deliveryOptionText) {
                 for (let i = 0; i < deliveryOptionsSelect.options.length; i++) {
@@ -1274,7 +1283,21 @@ document.addEventListener('DOMContentLoaded', () => {
         updatePreview();
     });
     conditionSelect.addEventListener('change', updatePreview);
+    
+    if (priceBeforeTaxInput) {
+        priceBeforeTaxInput.addEventListener('input', () => {
+            const beforeTaxVal = parseFloat(priceBeforeTaxInput.value);
+            if (!isNaN(beforeTaxVal) && beforeTaxVal >= 0) {
+                // 消費税10%を掛けて四捨五入
+                priceInput.value = Math.round(beforeTaxVal * 1.1);
+            } else {
+                priceInput.value = '';
+            }
+            updatePreview();
+        });
+    }
     priceInput.addEventListener('input', updatePreview);
+
     if (deliveryOptionsSelect) {
         deliveryOptionsSelect.addEventListener('change', updatePreview);
     }

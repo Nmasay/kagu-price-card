@@ -56,8 +56,17 @@
                 </select>
             </div>
             <div class="form-group">
-                <label for="price">金額 (税込):</label>
-                <input type="number" id="price" placeholder="税込金額を入力"value="" min="0">
+                <label>金額 (税込/税抜):</label>
+                <div style="display: flex; gap: 8px;">
+                    <div style="flex: 1;">
+                        <span style="font-size: 11px; color: #666; display: block; margin-bottom: 2px;">税抜 (100円単位)</span>
+                        <input type="number" id="price-before-tax" placeholder="税抜金額" min="0" step="100" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; background: var(--bg-input); color: var(--text-color);">
+                    </div>
+                    <div style="flex: 1;">
+                        <span style="font-size: 11px; color: #666; display: block; margin-bottom: 2px;">税込 (自動計算)</span>
+                        <input type="number" id="price" placeholder="税込金額" readonly style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; background-color: #e9ecef; color: #495057;">
+                    </div>
+                </div>
             </div>
             <div class="form-actions" style="display: flex; gap: 8px; width: 100%;">
                 <button type="button" id="add-to-list-button" class="action-button secondary-button" style="flex: 1; padding: 10px 0; font-size: 14px; width: auto;">リストに追加</button>
