@@ -172,7 +172,7 @@ h1, h2 {
     justify-content: flex-start;
     padding-left: 30px;     /* 【追加】青枠との被りを防ぐため、少し右へ寄せる */
     padding-right: 40px;
-    padding-top: 25px;      /* 【変更】5px 下に下げるため、20px から 25px に変更 */
+    padding-top: 15px;      /* 【変更】さらに少し上に上げるため、20px から 15px に変更 */
 }
 
 .notes-row {
@@ -235,7 +235,7 @@ h1, h2 {
 /* バーコード */
 .barcode-svg {
     position: absolute;
-    top: 150px;
+    top: 115px;             /* 【変更】日付と中古の上部を揃える連動調整として、105px から 115px に下げ */
     right: 45px;            /* 右端の縦型バーコードと被らないように少し左へずらす */
     width: auto;
     z-index: 10;
@@ -244,7 +244,7 @@ h1, h2 {
 /* 作成日時 */
 .timestamp-div {
     position: absolute;
-    top: 130px; /* バーコード(top: 150px)の直上に配置 */
+    top: 95px;              /* 【変更】プレビュー時は「中古」の文字上部と高さを揃えるため、85px から 95px に下げ */
     right: 45px;            /* バーコードの右端と揃える */
     font-size: 14px;
     color: #666;
@@ -516,6 +516,9 @@ button {
     }
     .condition-row::after, .notes-row::after {
         display: none !important; /* 【追加】印刷時は疑似要素の仕切り線を完全に消去 */
+    }
+    .condition-row {
+        padding-top: 25px !important; /* 【追加】印刷用の配置は絶対に変わらないように 25px で固定 */
     }
 
     /* 不要なUI要素は完全に非表示（物理的スペースも消す） */
