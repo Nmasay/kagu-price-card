@@ -1272,7 +1272,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     notesTextarea.addEventListener('input', () => {
         isAutoFittingNotes = true;
-        notesFontSizeInput.value = 50;
+        notesFontSizeInput.value = 30; // 備考欄の自動調整開始フォントサイズを30に設定
         updatePreview();
     });
 

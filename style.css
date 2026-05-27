@@ -177,8 +177,8 @@ h1, h2 {
 
 .notes-row {
     position: relative;     /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
-    min-height: 1.6cm;
-    height: auto;
+    height: 1.6cm;          /* 【変更】文字数に応じた自動縮小判定のため高さを1.6cmに固定 */
+    overflow: hidden;       /* 【追加】はみ出し時のスクロールバー表示を防ぐ */
     color: blue;
     font-size: 30px;
     justify-content: flex-start;
@@ -235,7 +235,7 @@ h1, h2 {
 /* バーコード */
 .barcode-svg {
     position: absolute;
-    top: 115px;             /* 【変更】日付と中古の上部を揃える連動調整として、105px から 115px に下げ */
+    top: 125px;             /* 【変更】日付と中古の上部揃え再調整として、115px から 125px に下げ */
     right: 45px;            /* 右端の縦型バーコードと被らないように少し左へずらす */
     width: auto;
     z-index: 10;
@@ -244,7 +244,7 @@ h1, h2 {
 /* 作成日時 */
 .timestamp-div {
     position: absolute;
-    top: 95px;              /* 【変更】プレビュー時は「中古」の文字上部と高さを揃えるため、85px から 95px に下げ */
+    top: 105px;             /* 【変更】プレビュー時は「中古」の文字上部と揃えるため、95px から 105px に下げ */
     right: 45px;            /* バーコードの右端と揃える */
     font-size: 14px;
     color: #666;
