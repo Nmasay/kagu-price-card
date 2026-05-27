@@ -863,13 +863,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (codeValue && svgElement) {
             JsBarcode(svgElement, codeValue, {
                 format: "EAN13",
-                width: 1.1,          // ユーザー指定: 線の太さを少し広げて読みやすく調整
-                height: 22,          // ユーザー指定: バーの長さを広げてスキャン性を向上
-                displayValue: true,  // ユーザー指定: 手動復元のために数値も表示！
-                fontSize: 8,         // カード上で綺麗に読める極小フォント
-                textMargin: 1,       // バーと数値の隙間を最小化
-                margin: 0,
-                background: "transparent"
+                width: 1.5,          // 金額用と同じ大きさに変更
+                height: 16,          // 金額用の3分の2（25 -> 16）に縮小
+                displayValue: true,  // 金額用と同じ大きさに変更
+                fontSize: 12,        // 金額用と同じ大きさに変更
+                textMargin: 2,       // 金額用と同じ大きさに変更
+                margin: 5,           // 金額用と同じ大きさに変更
+                background: "transparent",
+                textPosition: "bottom",
+                font: "Arial"
             });
             svgElement.style.display = 'block';
         } else if (svgElement) {
@@ -1166,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-row condition-row">${data.condition || '中古'}</div>
             <div class="card-row notes-row" style="font-size: ${data.notesFontSize}px;">${data.notes || ''}</div>
             <div class="card-row preview-delivery-options">${data.deliveryOptionText || ''}</div>
-            <div class="card-row price-row" style="font-size: 60px;">${formattedPrice}</div>
+            <div class="card-row price-row">${formattedPrice}</div>
             <svg id="batch-barcode-${index}" class="barcode-svg"></svg>
             <div class="restore-barcode-wrapper">
                 <svg id="batch-restore-barcode-${index}"></svg>
@@ -1175,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${damageMapHTML}
     
             <div class="check-section">
-                <div class="check-item">接客者: ＿＿＿＿＿</div>
+                <div class="check-item">接客者:</div>
                 <div class="check-item">売約:　　 □</div>
                 <div class="check-item">持ち帰り: □</div>
                 <div class="check-item">配達: 　　□</div>

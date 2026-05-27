@@ -169,8 +169,9 @@ h1, h2 {
     font-weight: bold;
     font-size: 55px;
     justify-content: flex-start;
+    padding-left: 30px;     /* 【追加】青枠との被りを防ぐため、少し右へ寄せる */
     padding-right: 40px;
-    padding-top: 20px; /* 上部の無駄な余白を削減 */
+    padding-top: 25px;      /* 【変更】5px 下に下げるため、20px から 25px に変更 */
 }
 
 .notes-row {
@@ -209,10 +210,10 @@ h1, h2 {
     min-height: 2.8cm;
     height: auto;
     font-weight: bold;
-    font-size: 60px;
+    font-size: 75px;        /* 60px から 75px へ拡大（一回り大きく） */
     justify-content: flex-start;
     padding-left: 30px;
-    padding-bottom: 20px; /* 余白を削減 */
+    padding-bottom: 45px;   /* 20px から 45px へ拡張し、金額を上にスライド */
     white-space: nowrap;
     flex-grow: 1; /* 余ったスペースを下部で吸収 */
 }
@@ -241,6 +242,7 @@ h1, h2 {
     position: absolute;
     bottom: 38px;
     right: 5px;
+    width: 130px;            /* 【追加】"＿＿＿"が消えても全体の左端の位置をキープするため、幅を130pxに固定 */
     font-size: 10pt;
     color: #333;
     z-index: 10;
@@ -631,28 +633,41 @@ button {
         fill: none !important;
         stroke-width: 1.5px !important;
     }
+
+    /* スタンプ印刷用スタイル（ソリッドな赤に上書きし、カラー出力を徹底） */
+    .card-stamp {
+        background-color: #e60000 !important;
+        color: #ffffff !important;
+        box-shadow: none !important; /* 【追加】印刷時に影が描画されるのを完全に防御 */
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 }
 
 /* --- スタンプ (斜めリボン) --- */
 .card-stamp {
     position: absolute;
     top: 12px;
-    left: -45px;
-    width: 160px;
+    right: -85px;           /* left から right に変更し、右上に配置 */
+    left: auto;             /* 左端指定を解除 */
+    width: 240px;           /* 両端を完全にフチまで伸ばしきる幅を維持 */
     height: 24px;
     background-color: rgba(230, 0, 0, 0.75);
     color: white;
     font-weight: bold;
     font-size: 14px;
-    transform: rotate(-45deg);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transform: rotate(45deg); /* -45deg から 45deg に変更し、右下がりの ＼ に回転 */
+    box-shadow: none;       /* 【変更】印刷時のバグを防ぐため、影を完全に削除 */
     display: none;
     z-index: 10;
     letter-spacing: 2px;
     text-indent: 2px;
-    padding-right: 28px; /* さらに1文字分追加し、合計2文字分(28px)左に寄せる */
+    padding-left: 28px;     /* padding-right から padding-left に変更し、右上コーナー側へ文字を寄せる */
+    padding-right: 0;       /* 右パディングをリセット */
     align-items: center;
     justify-content: center;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
 }
 .card-stamp.active {
     display: flex; /* ブロック要素ではなくFlexコンテナとして表示 */
@@ -707,11 +722,11 @@ button {
 /* --- 復元用バーコード（右端・縦向き）のラッパースタイル --- */
 .restore-barcode-wrapper {
     position: absolute;
-    top: 50%;
-    right: -16px;           /* right: -13px からさらに3px右（外側）へ移動し、完全に被りを解消 */
-    width: 95px;            /* JsBarcodeのwidth: 1.1 変更に伴う全体の長さに合わせ拡張 */
-    height: 38px;           /* JsBarcodeのheight: 22 変更に伴う全体の厚みに合わせ拡張 */
-    transform: translateY(-50%) rotate(-90deg); /* rotate(90deg) から rotate(-90deg) へ変更し180度反転 */
+    top: 250px;             /* 逆L字（Γ字型）の接続にするため、垂直位置を250pxに引き下げ */
+    right: -54px;           /* 右側へ寄せて金額バーコードとの被りを解消するための補正値 */
+    width: 153px;           /* 金額バーコードの横幅（JsBarcode幅1.5）に対応 */
+    height: 40px;           /* バーの高さ16に伴う全体の厚み（約40px）に対応 */
+    transform: translateY(-50%) rotate(-90deg); /* 180度反転した縦向き */
     transform-origin: center center;
     z-index: 10;
     display: flex;
