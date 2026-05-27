@@ -354,6 +354,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let isAutoFittingTitle = false;
     let isAutoFittingNotes = false;
 
+    // 備考欄のテキストを11文字ごとに改行するユーティリティ関数
+    function formatNotesText(text) {
+        if (!text) return '';
+        return text.split('\n').map(line => {
+            let formattedLine = '';
+            for (let i = 0; i < line.length; i += 11) {
+                formattedLine += line.substring(i, i + 11) + (i + 11 < line.length ? '\n' : '');
+            }
+            return formattedLine;
+        }).join('\n');
+    }
+
     // --- プレビュー更新関数 ---
     function updatePreview() {
         const isTitleMultiLine = titleInput.value.includes('\n');
@@ -368,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedOption = conditionSelect.options[conditionSelect.selectedIndex];
         previewCondition.textContent = selectedOption ? selectedOption.text : '中古';
 
-        previewNotes.textContent = notesTextarea.value || '';
+        previewNotes.textContent = formatNotesText(notesTextarea.value || '');
         previewNotes.style.fontSize = notesFontSizeInput.value + 'px';
 
         if (deliveryOptionsSelect && previewDeliveryOptions) {
@@ -1166,7 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${stampHTML}
             <div class="card-row title-row" style="font-size: ${titleFontSize}px; min-height: ${minHeight};">${data.title || '商品タイトル'}</div>
             <div class="card-row condition-row">${data.condition || '中古'}</div>
-            <div class="card-row notes-row" style="font-size: ${data.notesFontSize}px;">${data.notes || ''}</div>
+            <div class="card-row notes-row" style="font-size: ${data.notesFontSize}px;">${formatNotesText(data.notes || '')}</div>
             <div class="card-row preview-delivery-options">${data.deliveryOptionText || ''}</div>
             <div class="card-row price-row">${formattedPrice}</div>
             <svg id="batch-barcode-${index}" class="barcode-svg"></svg>
