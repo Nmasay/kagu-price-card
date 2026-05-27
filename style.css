@@ -163,6 +163,7 @@ h1, h2 {
 }
 
 .condition-row {
+    position: relative;     /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
     min-height: 2.0cm;
     height: auto;
     color: red;
@@ -175,6 +176,7 @@ h1, h2 {
 }
 
 .notes-row {
+    position: relative;     /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
     min-height: 1.6cm;
     height: auto;
     color: blue;
@@ -187,6 +189,18 @@ h1, h2 {
     white-space: pre-wrap;
     word-break: break-all;
     flex-shrink: 0; /* 縮小されて文字が重なるのを防ぐ */
+}
+
+/* --- プレビュー用：状態行・備考行の下の、両端が途切れた細い青ライン --- */
+.condition-row::after, .notes-row::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 30px;             /* さらに短くするため、15px から 30px に余白を拡大 */
+    right: 30px;            /* さらに短くするため、15px から 30px に余白を拡大 */
+    height: 2px;            /* 青い細い線 */
+    background-color: #1979ff;
+    z-index: 5;
 }
 
 .preview-delivery-options {
@@ -499,6 +513,9 @@ button {
     /* 印刷時はプレビュー用の青いラインを非表示にする */
     .title-row {
         border-bottom: none !important;
+    }
+    .condition-row::after, .notes-row::after {
+        display: none !important; /* 【追加】印刷時は疑似要素の仕切り線を完全に消去 */
     }
 
     /* 不要なUI要素は完全に非表示（物理的スペースも消す） */
