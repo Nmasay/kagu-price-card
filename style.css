@@ -667,8 +667,8 @@ button {
 /* --- スタンプ (斜めリボン) --- */
 .card-stamp {
     position: absolute;
-    top: 12px;
-    right: -85px;           /* left から right に変更し、右上に配置 */
+    top: 15px;
+    right: -65px;           /* left から right に変更し、右上に配置 */
     left: auto;             /* 左端指定を解除 */
     width: 240px;           /* 両端を完全にフチまで伸ばしきる幅を維持 */
     height: 24px;
@@ -752,7 +752,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .restore-barcode-wrapper svg {
