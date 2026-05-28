@@ -654,8 +654,15 @@ button {
         stroke-width: 1.5px !important;
     }
 
-    /* スタンプ印刷用スタイル（ソリッドな赤に上書きし、カラー出力を徹底） */
+    /* スタンプ印刷用スタイル（元の完璧な配置・形状を最優先で完全フリーズ保護） */
     .card-stamp {
+        box-sizing: border-box !important; /* 【追加】パディング増加による帯全体の幅の伸び（はみ出し）を防ぐ */
+        top: 12px !important;
+        right: -85px !important;
+        width: 240px !important;
+        height: 24px !important;
+        padding-left: 21px !important; /* 【調整】半文字分（7px）左上方向（上）へ文字をスライド */
+        font-size: 14px !important;
         background-color: #e60000 !important;
         color: #ffffff !important;
         box-shadow: none !important; /* 【追加】印刷時に影が描画されるのを完全に防御 */
@@ -666,24 +673,25 @@ button {
 
 /* --- スタンプ (斜めリボン) --- */
 .card-stamp {
+    box-sizing: border-box; /* 【追加】パディング増加による帯全体の幅の伸び（はみ出し）を防ぐ */
     position: absolute;
-    top: 35px;
-    right: -65px;           /* left から right に変更し、右上に配置 */
-    left: auto;             /* 左端指定を解除 */
-    width: 240px;           /* 両端を完全にフチまで伸ばしきる幅を維持 */
-    height: 24px;
+    top: -20px;             /* 【調整】印刷時の大迫力の大きさを維持したまま、はみ出さないよう上外側へシフト */
+    right: -55px;           /* 【調整】位置を右上コーナーの境界にフィットさせる */
+    left: auto;
+    width: 240px;           /* 【復元】印刷時と全く同じ大迫力の幅240pxに復元 */
+    height: 24px;           /* 【復元】印刷時と全く同じ太さ24pxに復元 */
     background-color: rgba(230, 0, 0, 0.75);
     color: white;
     font-weight: bold;
-    font-size: 14px;
-    transform: rotate(45deg); /* -45deg から 45deg に変更し、右下がりの ＼ に回転 */
-    box-shadow: none;       /* 【変更】印刷時のバグを防ぐため、影を完全に削除 */
+    font-size: 14px;        /* 【復元】印刷時と同じ見やすい14pxに復元 */
+    transform: rotate(45deg);
+    box-shadow: none;
     display: none;
     z-index: 10;
     letter-spacing: 2px;
     text-indent: 2px;
-    padding-left: 28px;     /* padding-right から padding-left に変更し、右上コーナー側へ文字を寄せる */
-    padding-right: 0;       /* 右パディングをリセット */
+    padding-left: 90px;     /* 【調整】さらに1文字分（15px）右下へスライドし、完璧な位置へ調整 */
+    padding-right: 0;
     align-items: center;
     justify-content: center;
     -webkit-print-color-adjust: exact;
