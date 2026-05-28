@@ -518,7 +518,7 @@ button {
         display: none !important; /* 【追加】印刷時は疑似要素の仕切り線を完全に消去 */
     }
     .condition-row {
-        padding-top: 25px !important; /* 【追加】印刷用の配置は絶対に変わらないように 25px で固定 */
+        padding-top: 35px !important; /* 【追加】印刷用の配置は絶対に変わらないように 25px で固定 */
     }
 
     /* 不要なUI要素は完全に非表示（物理的スペースも消す） */
