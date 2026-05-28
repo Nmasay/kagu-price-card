@@ -743,7 +743,7 @@ button {
 .restore-barcode-wrapper {
     position: absolute;
     top: 250px;             /* 逆L字（Γ字型）の接続にするため、垂直位置を250pxに引き下げ */
-    right: -94px;           /* 右側へ寄せて金額バーコードとの被りを解消するための補正値 */
+    right: -74px;           /* 右側へ寄せて金額バーコードとの被りを解消するための補正値 */
     width: 153px;           /* 金額バーコードの横幅（JsBarcode幅1.5）に対応 */
     height: 40px;           /* バーの高さ16に伴う全体の厚み（約40px）に対応 */
     transform: translateY(-50%) rotate(-90deg); /* 180度反転した縦向き */
