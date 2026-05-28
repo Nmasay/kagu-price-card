@@ -1310,7 +1310,19 @@ document.addEventListener('DOMContentLoaded', () => {
             updatePreview();
         });
     }
-    priceInput.addEventListener('input', updatePreview);
+
+    if (priceInput) {
+        priceInput.addEventListener('input', () => {
+            const priceVal = parseFloat(priceInput.value);
+            if (!isNaN(priceVal) && priceVal >= 0) {
+                // 1.1 で割って四捨五入し税抜金額を逆算
+                priceBeforeTaxInput.value = Math.round(priceVal / 1.1);
+            } else {
+                priceBeforeTaxInput.value = '';
+            }
+            updatePreview();
+        });
+    }
 
     if (deliveryOptionsSelect) {
         deliveryOptionsSelect.addEventListener('change', updatePreview);
