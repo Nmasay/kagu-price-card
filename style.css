@@ -1,3 +1,10 @@
+/* ==========================================================================
+   家具プライスカード作成ツール - 画面表示用スタイルシート (style.css)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. DESIGN SYSTEM & BASE (デザインシステム & 共通ベース)
+   -------------------------------------------------------------------------- */
 :root {
     --primary-color: #007bff;
     --primary-hover: #0056b3;
@@ -12,6 +19,7 @@
     --danger-hover: #a71d2a;
     --card-bg: #fff;
     --list-hover-bg: #f0f0f0;
+    --card-theme-blue: #1979ff; /* プライスカードの境界ガイド用の青色 */
 }
 
 body {
@@ -42,66 +50,41 @@ h1, h2 {
     margin-bottom: 20px;
 }
 
-.preview-column {
-    flex: 0 0 auto; /* 横幅はプレビューのサイズに合わせる（伸びない） */
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* パネル間の隙間を狭める */
+/* --------------------------------------------------------------------------
+   2. FORM UI & ACTIONS (入力フォーム & 操作ボタン)
+   -------------------------------------------------------------------------- */
+#input-form {
+    flex: 1;
+    min-width: 350px; /* 配達オプションの文字が切れない幅 */
 }
 
-#preview-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    background-color: #1979ff;
-    border-radius: 5px;
-    flex-shrink: 0;
+.form-group {
+    margin-bottom: 15px;
 }
 
-/* プライスカード本体 (ハガキサイズ 横: 148mm, 縦: 100mm) */
-.price-card-template {
-    width: 148mm;
-    height: 105mm;
-    border: none; /* 外側の青枠と完全に繋げるためグレーの枠線を消去 */
-    background-color: var(--card-bg);
-    padding: 0; /* 内部のラインが端まで届くように余白を削除 */
-    box-sizing: border-box;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-/* 一括印刷用コンテナは画面上は非表示 */
-#print-batch-container {
-    display: none;
-}
-
-.card-row {
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 5px;
-    overflow: visible;
-}
-
-/* 各行の高さとスタイル */
-.title-row {
-    height: 2cm;
-    font-size: 50px;
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
     font-weight: bold;
-    align-items: flex-start;
-    white-space: pre-wrap;
-    word-break: break-word;
-    line-height: 1.1;
-    padding-top: 20px;
-    border-bottom: 10px solid #1979ff; /* プレビュー用ガイドライン（枠の半分の太さ） */
 }
 
-/* --- 入力履歴リストのスタイル --- */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 18px;
+}
+
+.form-group textarea {
+    resize: vertical;
+}
+
+/* --- 入力履歴リスト --- */
 .title-input-container, .notes-input-container {
     position: relative;
 }
@@ -162,145 +145,7 @@ h1, h2 {
     color: var(--danger-hover);
 }
 
-.condition-row {
-    position: relative;     /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
-    min-height: 2.0cm;
-    height: auto;
-    color: red;
-    font-weight: bold;
-    font-size: 55px;
-    justify-content: flex-start;
-    padding-left: 30px;     /* 【追加】青枠との被りを防ぐため、少し右へ寄せる */
-    padding-right: 40px;
-    padding-top: 15px;      /* 【変更】さらに少し上に上げるため、20px から 15px に変更 */
-}
-
-.notes-row {
-    position: relative;     /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
-    height: 1.6cm;          /* 【変更】文字数に応じた自動縮小判定のため高さを1.6cmに固定 */
-    overflow: hidden;       /* 【追加】はみ出し時のスクロールバー表示を防ぐ */
-    color: blue;
-    font-size: 30px;
-    justify-content: flex-start;
-    align-items: flex-start;
-    padding-top: 5px;
-    padding-left: 15px;
-    padding-right: 15px;
-    white-space: pre-wrap;
-    word-break: break-all;
-    flex-shrink: 0; /* 縮小されて文字が重なるのを防ぐ */
-}
-
-/* --- プレビュー用：状態行・備考行の下の、両端が途切れた細い青ライン --- */
-.condition-row::after, .notes-row::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 30px;             /* さらに短くするため、15px から 30px に余白を拡大 */
-    right: 30px;            /* さらに短くするため、15px から 30px に余白を拡大 */
-    height: 2px;            /* 青い細い線 */
-    background-color: #1979ff;
-    z-index: 5;
-}
-
-.preview-delivery-options {
-    color: #ff0000;
-    font-size: 18px;
-    padding: 0 15px;
-    margin-top: 10px; /* 備考との間に隙間をあける */
-    white-space: pre-wrap;
-    word-break: break-word;
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    min-height: 1.2cm;
-    height: auto;
-    flex-shrink: 0; /* 縮小されて文字が重なるのを防ぐ */
-}
-
-.price-row {
-    min-height: 2.8cm;
-    height: auto;
-    font-weight: bold;
-    font-size: 75px;        /* 60px から 75px へ拡大（一回り大きく） */
-    justify-content: flex-start;
-    padding-left: 30px;
-    padding-bottom: 45px;   /* 20px から 45px へ拡張し、金額を上にスライド */
-    white-space: nowrap;
-    flex-grow: 1; /* 余ったスペースを下部で吸収 */
-}
-
-/* バーコード */
-.barcode-svg {
-    position: absolute;
-    top: 125px;             /* 【変更】日付と中古の上部揃え再調整として、115px から 125px に下げ */
-    right: 45px;            /* 右端の縦型バーコードと被らないように少し左へずらす */
-    width: auto;
-    z-index: 10;
-}
-
-/* 作成日時 */
-.timestamp-div {
-    position: absolute;
-    top: 105px;             /* 【変更】プレビュー時は「中古」の文字上部と揃えるため、95px から 105px に下げ */
-    right: 45px;            /* バーコードの右端と揃える */
-    font-size: 14px;
-    color: #666;
-    z-index: 10;
-}
-
-/* --- チェック欄 --- */
-.check-section {
-    position: absolute;
-    bottom: 38px;
-    right: 5px;
-    width: 130px;            /* 【追加】"＿＿＿"が消えても全体の左端の位置をキープするため、幅を130pxに固定 */
-    font-size: 10pt;
-    color: #333;
-    z-index: 10;
-    line-height: 1.3;
-    text-align: left;
-}
-
-.check-item {
-    margin-bottom: 1px;
-    white-space: nowrap;
-}
-
-#input-form {
-    flex: 1;
-    min-width: 350px; /* 配達オプションの文字が切れない幅 */
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.form-group input[type="text"],
-.form-group input[type="number"],
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 18px;
-}
-
-.form-group textarea {
-    resize: vertical;
-}
-
-/* --- スライダー --- */
+/* --- スライダー (フォントサイズ調整) --- */
 input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
@@ -313,8 +158,13 @@ input[type="range"] {
     border-radius: 4px;
     margin: 8px 0;
 }
-input[type="range"]:hover { opacity: 1; }
-input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb {
+
+input[type="range"]:hover {
+    opacity: 1;
+}
+
+input[type="range"]::-webkit-slider-thumb, 
+input[type="range"]::-moz-range-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 18px;
@@ -325,6 +175,7 @@ input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb
     border: 2px solid #fff;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
+
 .form-group .font-size-value {
     display: inline-block;
     min-width: 2.5em;
@@ -340,6 +191,7 @@ input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb
     gap: 10px;
     margin-top: 20px;
 }
+
 button {
     padding: 10px 20px;
     border: none;
@@ -348,6 +200,7 @@ button {
     font-size: 16px;
     transition: background-color 0.3s ease;
 }
+
 .action-button {
     width: 155px; /* 全ての主要ボタンをこのサイズに統一 */
     padding: 10px 0; /* 文字が入りきるように左右パディングを詰める */
@@ -355,6 +208,7 @@ button {
     font-size: 16px;
     box-sizing: border-box;
 }
+
 .primary-button {
     background-color: var(--primary-color);
     color: white;
@@ -375,7 +229,26 @@ button {
 .danger-button:hover { background-color: var(--danger-hover); }
 .danger-button:disabled { background-color: #f5a6b0; cursor: not-allowed; }
 
-/* --- 印刷待ちキュー --- */
+/* 復元パネル内の入力フォームスタイル調整 */
+#restore-barcode-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+#restore-barcode-input:focus {
+    border-color: #17a2b8;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   3. PRINT QUEUE PANEL (印刷待ちキューセクション)
+   -------------------------------------------------------------------------- */
 .queue-section {
     flex: 0 0 360px; /* ボタン2つ（155px×2+10px）がピッタリ収まる固定幅 */
     box-sizing: border-box; /* パディングを含めて幅を計算させる（はみ出し防止） */
@@ -384,6 +257,7 @@ button {
     border-radius: 8px;
     border: 1px solid #ddd;
 }
+
 #print-queue-section {
     width: 320px;
     flex-shrink: 0;
@@ -397,10 +271,12 @@ button {
     align-items: center;
     margin-bottom: 15px;
 }
+
 .queue-header h3 {
     margin: 0;
     font-size: 1.2em;
 }
+
 .select-all-label {
     font-size: 0.9em;
     cursor: pointer;
@@ -408,6 +284,7 @@ button {
     align-items: center;
     gap: 4px;
 }
+
 #print-queue-list {
     list-style: none;
     padding: 0;
@@ -421,6 +298,7 @@ button {
     background: #fff;
     border-radius: 4px;
 }
+
 #print-queue-list li {
     background: white;
     border: 3px solid #0056b3;
@@ -433,36 +311,43 @@ button {
     box-sizing: border-box;
     max-width: 100%;
 }
+
 .queue-item-info {
     display: flex;
     flex-direction: column;
     flex: 1; /* 残りの領域を埋める */
     min-width: 0; /* flexアイテム内のテキストがあふれるのを防ぐ */
 }
+
 .queue-item-controls {
     display: flex;
     align-items: center;
     gap: 5px;
 }
+
 .drag-handle {
     cursor: grab;
     color: #999;
     font-size: 1.2em;
     padding: 0 5px;
 }
+
 .drag-handle:active {
     cursor: grabbing;
 }
+
 #print-queue-list li.drag-over {
     border-top: 2px dashed #007bff;
     background-color: #f0f8ff;
 }
+
 .queue-item-checkbox {
     margin-right: 10px;
     cursor: pointer;
     width: 18px;
     height: 18px;
 }
+
 .move-btn {
     background: #eee;
     border: 1px solid #ccc;
@@ -471,232 +356,203 @@ button {
     font-size: 14px;
     border-radius: 3px;
 }
-.move-btn:hover { background: #ddd; }
-.queue-item-title { font-weight: bold; font-size: 0.9em; }
-.queue-item-price { font-size: 0.8em; color: #555; }
 
-
-/* --- 印刷用スタイル --- */
-@media print {
-    @page {
-        size: 148mm 105mm landscape;
-        margin: 0mm;
-    }
-
-    html {
-        margin: 0 !important;
-        padding: 0 !important;
-        height: 100% !important;
-    }
-
-    body {
-        margin: 0 !important;
-        padding: 0 !important;
-        background-color: var(--card-bg) !important;
-        line-height: normal !important;
-        font-family: sans-serif !important;
-        visibility: visible !important;
-    }
-
-    /* 一括印刷時は複数ページにわたるため visible で改ページを許可 */
-    body.is-batch-printing {
-        overflow: visible !important;
-        height: auto !important;
-    }
-
-    /* 個別印刷時は絶対に1ページに強制するため hidden と 100% 高さを指定 */
-    body:not(.is-batch-printing) {
-        overflow: hidden !important;
-        height: 100% !important;
-    }
-    
-    /* 印刷時はプレビュー用の青いラインを非表示にする */
-    .title-row {
-        border-bottom: none !important;
-    }
-    .condition-row::after, .notes-row::after {
-        display: none !important; /* 【追加】印刷時は疑似要素の仕切り線を完全に消去 */
-    }
-    .condition-row {
-        padding-top: 35px !important; /* 【追加】印刷用の配置は絶対に変わらないように 25px で固定 */
-    }
-
-    /* 不要なUI要素は完全に非表示（物理的スペースも消す） */
-    .site-header, #input-form, #print-queue-section, .stamp-controls-panel, .damage-map-controls-panel, .restore-controls-panel {
-        display: none !important;
-    }
-
-    /* 個別印刷時：コンテナの幅制限や余白を完全に解除 */
-    body:not(.is-batch-printing) .container {
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: transparent !important;
-        box-shadow: none !important;
-        display: block !important;
-    }
-
-    body:not(.is-batch-printing) .preview-column {
-        display: block !important;
-        width: 100% !important;
-        height: auto !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        gap: 0 !important;
-    }
-
-    /* 一括印刷時：コンテナ全体を完全に非表示にし、一切のスペースを取らせない */
-    body.is-batch-printing .site-header,
-    body.is-batch-printing .container {
-        display: none !important;
-    }
-
-    /* 印刷モードによる表示切り替え */
-    body.is-batch-printing #print-batch-container {
-        display: flex !important;
-        flex-direction: column !important;
-        visibility: visible !important;
-        position: static !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    body.is-batch-printing #preview-container {
-        display: none !important;
-    }
-    body.is-batch-printing #print-batch-container * {
-        visibility: visible !important;
-    }
-
-    /* 個別印刷時のスタイル */
-    body:not(.is-batch-printing) #price-card,
-    body:not(.is-batch-printing) #price-card * {
-        visibility: visible !important;
-    }
-
-    body:not(.is-batch-printing) #preview-container {
-        display: block !important;
-        position: static !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        background-color: transparent !important;
-    }
-    
-    body:not(.is-batch-printing) #price-card {
-        position: relative !important; /* absoluteからrelativeへ変更。コンテナのフローに従わせる */
-        left: 0 !important;
-        top: 0 !important;
-    }
-
-    /* プライスカードの共通印刷スタイル */
-    .price-card-template {
-        width: 147mm !important;
-        height: 104mm !important; /* 105mmから1mm減らして確実にはみ出しを防ぐ */
-        max-width: 100vw !important;
-        max-height: 100vh !important;
-        margin: 0 auto !important;
-        padding: 0.5mm 0mm 0.5mm 0.5mm !important;
-        border: none !important;
-        box-shadow: none !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
-        background-color: var(--card-bg) !important;
-        display: flex !important;
-        flex-direction: column !important;
-        visibility: visible !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-    }
-
-    /* 一括印刷時は、カード間にのみ改ページを入れる */
-    body.is-batch-printing .price-card-template {
-        position: relative !important;
-    }
-
-    body.is-batch-printing .price-card-template:not(:last-child) {
-        page-break-after: always !important;
-        break-after: page !important;
-    }
-
-    .card-row {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-        page-break-before: avoid !important;
-        break-before: avoid !important;
-    }
-
-    .barcode-svg, .timestamp-div {
-        position: absolute !important;
-        z-index: 10 !important;
-        visibility: visible !important;
-    }
-    .barcode-svg { top: 150px !important; right: 45px !important; }
-    .timestamp-div { top: 130px !important; right: 45px !important; font-size: 10pt !important; color: #555 !important; }
-    
-    /* 個別の行スタイル上書きはプレビューと同じにするため削除 */
-    .check-section, .check-section .check-item { visibility: visible !important; }
-    .check-section { font-size: 10pt !important; line-height: 1.2 !important; }
-
-    /* ダメージマップ印刷用スタイル */
-    .damage-map-container {
-        position: absolute !important;
-        bottom: 12px !important;
-        left: 80mm !important; /* 金額の右隣（80mm）に指定位置で固定 */
-        width: 30mm !important; /* サイズを30mmに指定変更 */
-        height: 30mm !important; /* サイズを30mmに指定変更 */
-        display: flex !important;
-        visibility: visible !important;
-        z-index: 5 !important;
-    }
-    .damage-map-container svg {
-        visibility: visible !important;
-        stroke: #b0b0b0 !important; /* 印刷時も薄いグレーの線 */
-        fill: none !important;
-        stroke-width: 1.5px !important;
-    }
-
-    /* スタンプ印刷用スタイル（元の完璧な配置・形状を最優先で完全フリーズ保護） */
-    .card-stamp {
-        box-sizing: border-box !important; /* 【追加】パディング増加による帯全体の幅の伸び（はみ出し）を防ぐ */
-        top: 12px !important;
-        right: -85px !important;
-        width: 240px !important;
-        height: 24px !important;
-        padding-left: 21px !important; /* 【調整】半文字分（7px）左上方向（上）へ文字をスライド */
-        font-size: 14px !important;
-        background-color: #e60000 !important;
-        color: #ffffff !important;
-        box-shadow: none !important; /* 【追加】印刷時に影が描画されるのを完全に防御 */
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
+.move-btn:hover {
+    background: #ddd;
 }
+
+.queue-item-title {
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.queue-item-price {
+    font-size: 0.8em;
+    color: #555;
+}
+
+/* --------------------------------------------------------------------------
+   4. PRICE CARD COMPONENT (プライスカード基本レイアウト)
+   -------------------------------------------------------------------------- */
+.preview-column {
+    flex: 0 0 auto; /* 横幅はプレビューのサイズに合わせる（伸びない） */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* パネル間の隙間を狭める */
+}
+
+#preview-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: var(--card-theme-blue); /* 変数化 */
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+
+/* 一括印刷用コンテナは画面上は非表示 */
+#print-batch-container {
+    display: none;
+}
+
+/* プライスカード本体 (ハガキサイズ 横: 148mm, 縦: 100mm) */
+.price-card-template {
+    width: 148mm;
+    height: 105mm;
+    border: none; /* 外側の青枠と完全に繋げるためグレーの枠線を消去 */
+    background-color: var(--card-bg);
+    padding: 0; /* 内部のラインが端まで届くように余白を削除 */
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.card-row {
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    overflow: visible;
+}
+
+/* --- 各行の高さとスタイル --- */
+.title-row {
+    height: 2cm;
+    font-size: 50px;
+    font-weight: bold;
+    align-items: flex-start;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.1;
+    padding-top: 20px;
+    border-bottom: 10px solid var(--card-theme-blue); /* プレビュー用ガイドライン (変数化) */
+}
+
+.condition-row {
+    position: relative;     /* 疑似要素（仕切り線）の配置基準点 */
+    min-height: 2.0cm;
+    height: auto;
+    color: red;
+    font-weight: bold;
+    font-size: 55px;
+    justify-content: flex-start;
+    padding-left: 30px;     /* 青枠との被りを防ぐため、少し右へ寄せる */
+    padding-right: 40px;
+    padding-top: 15px;
+}
+
+.notes-row {
+    position: relative;     /* 疑似要素（仕切り線）の配置基準点 */
+    height: 1.6cm;          /* 文字数に応じた自動縮小判定のため高さを固定 */
+    overflow: hidden;       /* はみ出し時のスクロールバー表示を防ぐ */
+    color: blue;
+    font-size: 30px;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-top: 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    flex-shrink: 0;         /* 縮小されて文字が重なるのを防ぐ */
+}
+
+/* プレビュー用：状態行・備考行の下の、両端が途切れた細い青ライン */
+.condition-row::after, 
+.notes-row::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 30px;             /* 余白を拡大 */
+    right: 30px;            /* 余白を拡大 */
+    height: 2px;            /* 青い細い線 */
+    background-color: var(--card-theme-blue); /* 変数化 */
+    z-index: 5;
+}
+
+.preview-delivery-options {
+    color: #ff0000;
+    font-size: 18px;
+    padding: 0 15px;
+    margin-top: 10px;       /* 備考との間に隙間をあける */
+    white-space: pre-wrap;
+    word-break: break-word;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    min-height: 1.2cm;
+    height: auto;
+    flex-shrink: 0;         /* 縮小されて文字が重なるのを防ぐ */
+}
+
+.price-row {
+    min-height: 2.8cm;
+    height: auto;
+    font-weight: bold;
+    font-size: 75px;        /* 拡大（一回り大きく） */
+    justify-content: flex-start;
+    padding-left: 30px;
+    padding-bottom: 45px;   /* 金額を上にスライド */
+    white-space: nowrap;
+    flex-grow: 1;           /* 余ったスペースを下部で吸収 */
+}
+
+/* --- チェック欄 --- */
+.check-section {
+    position: absolute;
+    bottom: 38px;
+    right: 5px;
+    width: 130px;            /* 幅を固定 */
+    font-size: 10pt;
+    color: #333;
+    z-index: 10;
+    line-height: 1.3;
+    text-align: left;
+}
+
+.check-item {
+    margin-bottom: 1px;
+    white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   5. CARD DECORATIONS - ADD-ONS (カード装飾 & 追加機能パーツ)
+   -------------------------------------------------------------------------- */
 
 /* --- スタンプ (斜めリボン) --- */
 .card-stamp {
-    box-sizing: border-box; /* 【追加】パディング増加による帯全体の幅の伸び（はみ出し）を防ぐ */
+    box-sizing: border-box; /* パディング増加による帯全体の幅の伸び（はみ出し）を防ぐ */
     position: absolute;
-    top: -20px;             /* 【調整】印刷時の大迫力の大きさを維持したまま、はみ出さないよう上外側へシフト */
-    right: -55px;           /* 【調整】位置を右上コーナーの境界にフィットさせる */
+    top: -20px;             /* はみ出さないよう上外側へシフト */
+    right: -55px;           /* 位置を右上コーナーの境界にフィットさせる */
     left: auto;
-    width: 240px;           /* 【復元】印刷時と全く同じ大迫力の幅240pxに復元 */
-    height: 24px;           /* 【復元】印刷時と全く同じ太さ24pxに復元 */
+    width: 240px;           /* 幅240px */
+    height: 24px;           /* 太さ24px */
     background-color: rgba(230, 0, 0, 0.75);
     color: white;
     font-weight: bold;
-    font-size: 14px;        /* 【復元】印刷時と同じ見やすい14pxに復元 */
+    font-size: 14px;
     transform: rotate(45deg);
     box-shadow: none;
     display: none;
     z-index: 10;
     letter-spacing: 2px;
     text-indent: 2px;
-    padding-left: 90px;     /* 【調整】さらに1文字分（15px）右下へスライドし、完璧な位置へ調整 */
+    padding-left: 90px;     /* 右下へスライドし、完璧な位置へ調整 */
     padding-right: 0;
     align-items: center;
     justify-content: center;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
 }
+
 .card-stamp.active {
     display: flex; /* ブロック要素ではなくFlexコンテナとして表示 */
 }
@@ -713,23 +569,26 @@ button {
     cursor: pointer;
     transition: transform 0.1s, opacity 0.2s;
 }
+
 .stamp-btn:hover {
     opacity: 0.8;
 }
+
 .stamp-btn:active {
     transform: scale(0.95);
 }
+
 .stamp-btn.selected {
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
 }
 
-/* --- ダメージマップ（家具の線画）のスタイル --- */
+/* --- ダメージマップ（家具の線画） --- */
 .damage-map-container {
     position: absolute;
     bottom: 12px;           /* 下部から少し浮かせた位置 */
     left: 80mm;             /* 金額の右隣（80mm）に指定位置で固定 */
-    width: 30mm;            /* サイズを30mmに指定変更 */
-    height: 30mm;           /* サイズを30mmに指定変更 */
+    width: 30mm;            /* サイズを30mmに指定固定 */
+    height: 30mm;           /* サイズを30mmに指定固定 */
     z-index: 5;             /* 背景とテキストの邪魔にならない重ね順 */
     display: flex;
     align-items: center;
@@ -747,13 +606,13 @@ button {
     stroke-linejoin: round;
 }
 
-/* --- 復元用バーコード（右端・縦向き）のラッパースタイル --- */
+/* --- 復元用バーコード（右端・縦向き） --- */
 .restore-barcode-wrapper {
     position: absolute;
-    top: 250px;             /* 逆L字（Γ字型）の接続にするため、垂直位置を250pxに引き下げ */
-    right: -54px;           /* 右側へ寄せて金額バーコードとの被りを解消するための補正値 */
-    width: 153px;           /* 金額バーコードの横幅（JsBarcode幅1.5）に対応 */
-    height: 40px;           /* バーの高さ16に伴う全体の厚み（約40px）に対応 */
+    top: 250px;             /* 垂直位置を引き下げ */
+    right: -54px;           /* 右側へ寄せて金額バーコードとの被りを解消 */
+    width: 153px;           /* 金額バーコードの横幅に対応 */
+    height: 40px;           /* 厚みに対応 */
     transform: translateY(-50%) rotate(90deg); /* 180度反転した縦向き */
     transform-origin: center center;
     z-index: 9999;
@@ -769,18 +628,20 @@ button {
     display: block;
 }
 
-/* 復元パネル内の入力フォームスタイル調整 */
-#restore-barcode-input {
-    width: 100%;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 14px;
-    box-sizing: border-box;
-    transition: border-color 0.2s;
+/* --- 作成日時・デフォルトバーコード --- */
+.barcode-svg {
+    position: absolute;
+    top: 125px;             /* 日付と中古の上部揃え再調整 */
+    right: 45px;            /* 少し左へずらす */
+    width: auto;
+    z-index: 10;
 }
-#restore-barcode-input:focus {
-    border-color: #17a2b8;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
+
+.timestamp-div {
+    position: absolute;
+    top: 105px;             /* プレビュー時は「中古」の文字上部と揃える */
+    right: 45px;            /* バーコードの右端と揃える */
+    font-size: 14px;
+    color: #666;
+    z-index: 10;
 }
