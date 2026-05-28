@@ -748,7 +748,7 @@ button {
     height: 40px;           /* バーの高さ16に伴う全体の厚み（約40px）に対応 */
     transform: translateY(-50%) rotate(-90deg); /* 180度反転した縦向き */
     transform-origin: center center;
-    z-index: 10;
+    z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
