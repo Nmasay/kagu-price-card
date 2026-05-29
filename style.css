@@ -486,7 +486,7 @@ button {
     left: auto;
     width: 28px;            /* 縦書きにフィットするスマートな幅 */
     height: 3.5cm;          /* 商品タイトル行(2cm)を超えて下部へ垂れ下がる3.5cmの長さ */
-    background-color: #e60000; /* 鮮やかな赤いライン */
+    background-color: var(--stamp-color, #e60000); /* 鮮やかな赤いライン */
     color: #ffffff;         /* 白文字 */
     font-weight: 900;       /* 太めのフォント */
     font-size: 13px;        /* 縦書きに適した美しいサイズ */
@@ -536,6 +536,24 @@ button {
     transform: scale(0.95);
 }
 .stamp-btn.selected {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
+}
+
+/* --- スタンプ色選択ボタンのスタイル --- */
+.stamp-color-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px #ccc;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.1s, box-shadow 0.2s;
+}
+.stamp-color-btn:hover {
+    transform: scale(1.1);
+}
+.stamp-color-btn.selected {
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
 }
 

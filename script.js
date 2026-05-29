@@ -98,9 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let printQueue = JSON.parse(localStorage.getItem('kagu-price-card-queue')) || [];
     let draggedItemIndex = null; // ドラッグ中のアイテムインデックスを保持
     let currentStamp = ''; // 現在選択されているスタンプ
+    let currentStampColor = '#e60000'; // 現在選択されているスタンプ色（デフォルト: 赤）
 
     // --- スタンプボタンの初期化 ---
     const stampButtons = document.querySelectorAll('.stamp-btn');
+    const stampColorButtons = document.querySelectorAll('.stamp-color-btn');
     const previewStamp = document.getElementById('preview-stamp');
     const customStampInput = document.getElementById('custom-stamp-input');
     const clearStampBtn = document.querySelector('.clear-stamp-btn');
@@ -132,6 +134,15 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.classList.add('selected');
             currentStamp = btn.dataset.stamp;
             if (customStampInput) customStampInput.value = ''; // プリセット選択時は自由入力をクリア
+            updatePreview();
+        });
+    });
+
+    stampColorButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            stampColorButtons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            currentStampColor = btn.dataset.color || '#e60000';
             updatePreview();
         });
     });
@@ -400,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // スタンプの反映
         if (currentStamp) {
             previewStamp.textContent = currentStamp;
+            previewStamp.style.setProperty('--stamp-color', currentStampColor);
             previewStamp.classList.add('active');
         } else {
             previewStamp.classList.remove('active');
@@ -547,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const stampSpan = document.createElement('span');
             stampSpan.style.color = 'white';
-            stampSpan.style.backgroundColor = '#e60000';
+            stampSpan.style.backgroundColor = item.stampColor || '#e60000';
             stampSpan.style.padding = '2px 6px';
             stampSpan.style.borderRadius = '4px';
             stampSpan.style.fontSize = '0.7em';
@@ -653,6 +665,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (customStampInput) customStampInput.value = '';
                 }
 
+                // スタンプ色の復元
+                currentStampColor = item.stampColor || '#e60000';
+                stampColorButtons.forEach(b => {
+                    b.classList.remove('selected');
+                    if (b.dataset.color === currentStampColor) {
+                        b.classList.add('selected');
+                    }
+                });
+
                 // ダメージマップの復元
                 currentDamageMap = item.damageMap || '';
                 if (damageMapSelect) {
@@ -704,6 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
             deliveryOptionText: deliveryOptionsSelect ? deliveryOptionsSelect.options[deliveryOptionsSelect.selectedIndex].text : '',
             price: parseInt(priceInput.value, 10),
             stampText: currentStamp,
+            stampColor: currentStampColor,
             damageMap: currentDamageMap
         };
 
@@ -723,10 +745,13 @@ document.addEventListener('DOMContentLoaded', () => {
             priceInput.value = '';
             if (priceBeforeTaxInput) priceBeforeTaxInput.value = '';
             currentStamp = '';
+            currentStampColor = '#e60000';
             currentDamageMap = '';
             stampButtons.forEach(b => b.classList.remove('selected'));
             if (clearStampBtn) clearStampBtn.classList.add('selected');
             if (customStampInput) customStampInput.value = '';
+            stampColorButtons.forEach(b => b.classList.remove('selected'));
+            if (stampColorButtons[0]) stampColorButtons[0].classList.add('selected');
             if (damageMapSelect) damageMapSelect.value = '';
             
             updatePreview();
@@ -750,10 +775,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // スタンプのクリア
             currentStamp = '';
+            currentStampColor = '#e60000';
             currentDamageMap = '';
             stampButtons.forEach(b => b.classList.remove('selected'));
             if (clearStampBtn) clearStampBtn.classList.add('selected');
             if (customStampInput) customStampInput.value = '';
+            stampColorButtons.forEach(b => b.classList.remove('selected'));
+            if (stampColorButtons[0]) stampColorButtons[0].classList.add('selected');
             if (damageMapSelect) damageMapSelect.value = '';
             
             updatePreview();
@@ -779,7 +807,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function exportToCSV() {
         if (printQueue.length === 0) return;
 
-        const headers = ['商品名', '金額', '状態', '備考', 'タイトルフォントサイズ', '備考フォントサイズ', '配送オプション', 'スタンプ', 'ダメージマップ'];
+        const headers = ['商品名', '金額', '状態', '備考', 'タイトルフォントサイズ', '備考フォントサイズ', '配送オプション', 'スタンプ', 'ダメージマップ', 'スタンプ色'];
         
         function escapeCSVField(field) {
             if (field === null || field === undefined) return '';
@@ -802,7 +830,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 item.notesFontSize || 30,
                 item.deliveryOptionText || '',
                 item.stampText || '',
-                item.damageMap || ''
+                item.damageMap || '',
+                item.stampColor || '#e60000'
             ];
             csvRows.push(row.map(escapeCSVField).join(','));
         });
@@ -969,6 +998,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (customStampInput) customStampInput.value = '';
             }
 
+            // スタンプ色の復元
+            currentStampColor = product.stampColor || '#e60000';
+            stampColorButtons.forEach(b => {
+                b.classList.remove('selected');
+                if (b.dataset.color === currentStampColor) {
+                    b.classList.add('selected');
+                }
+            });
+
             // ダメージマップの復元
             currentDamageMap = product.damageMap || '';
             if (damageMapSelect) {
@@ -1052,6 +1090,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const notesFontSizeIdx = headers.indexOf('備考フォントサイズ');
         const deliveryOptionTextIdx = headers.indexOf('配送オプション');
         const stampTextIdx = headers.indexOf('スタンプ');
+        const stampColorIdx = headers.indexOf('スタンプ色');
         const damageMapIdx = headers.indexOf('ダメージマップ');
 
         if (titleIdx === -1 || priceIdx === -1) {
@@ -1107,6 +1146,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 stampText = row[stampTextIdx].trim();
             }
 
+            let stampColor = '#e60000';
+            if (stampColorIdx !== -1 && row[stampColorIdx]) {
+                stampColor = row[stampColorIdx].trim() || '#e60000';
+            }
+
             let damageMap = '';
             if (damageMapIdx !== -1 && row[damageMapIdx]) {
                 damageMap = row[damageMapIdx].trim();
@@ -1121,6 +1165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 deliveryOptionText: deliveryOptionText,
                 price: isNaN(price) ? NaN : price,
                 stampText: stampText,
+                stampColor: stampColor,
                 damageMap: damageMap,
                 selected: true // デフォルトでチェックオン
             });
@@ -1162,7 +1207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cardDiv = document.createElement('div');
         cardDiv.classList.add('price-card-template');
 
-        const stampHTML = data.stampText ? `<div class="card-stamp active">${data.stampText}</div>` : '';
+        const stampHTML = data.stampText ? `<div class="card-stamp active" style="--stamp-color: ${data.stampColor || '#e60000'};">${data.stampText}</div>` : '';
         const damageMapHTML = (data.damageMap && damageMapSVGs[data.damageMap]) 
             ? `<div class="damage-map-container">${damageMapSVGs[data.damageMap]}</div>` 
             : '<div class="damage-map-container"></div>';
