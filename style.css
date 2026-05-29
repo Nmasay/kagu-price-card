@@ -316,48 +316,7 @@ button {
     display: flex;
     flex-direction: column;
     flex: 1; /* 残りの領域を埋める */
-    min-width: 0; /* flexアイテム内のテキストがあふれるのを防ぐ */
-}
-
-.queue-item-controls {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.drag-handle {
-    cursor: grab;
-    color: #999;
-    font-size: 1.2em;
-    padding: 0 5px;
-}
-
-.drag-handle:active {
-    cursor: grabbing;
-}
-
-#print-queue-list li.drag-over {
-    border-top: 2px dashed #007bff;
-    background-color: #f0f8ff;
-}
-
-.queue-item-checkbox {
-    margin-right: 10px;
-    cursor: pointer;
-    width: 18px;
-    height: 18px;
-}
-
-.move-btn {
-    background: #eee;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    padding: 2px 6px;
-    font-size: 14px;
-    border-radius: 3px;
-}
-
-.move-btn:hover {
+    min-width: 0; /* flexアイテム内のテキストがあふれるのを防�.move-btn:hover {
     background: #ddd;
 }
 
@@ -522,39 +481,256 @@ button {
     white-space: nowrap;
 }
 
-/* --------------------------------------------------------------------------
-   5. CARD DECORATIONS - ADD-ONS (カード装飾 & 追加機能パーツ)
-   -------------------------------------------------------------------------- */
+/* --- 印刷用スタイル --- */
+@media print {
+    @page {
+        size: 148mm 105mm landscape;
+        margin: 0mm;
+    }
 
-/* --- スタンプ (斜めリボン) --- */
+    html {
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100% !important;
+    }
+
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: var(--card-bg) !important;
+        line-height: normal !important;
+        font-family: sans-serif !important;
+        visibility: visible !important;
+    }
+
+    /* 一括印刷時は複数ページにわたるため visible で改ページを許可 */
+    body.is-batch-printing {
+        overflow: visible !important;
+        height: auto !important;
+    }
+
+    /* 個別印刷時は絶対に1ページに強制するため hidden と 100% 高さを指定 */
+    body:not(.is-batch-printing) {
+        overflow: hidden !important;
+        height: 100% !important;
+    }
+    
+    /* 印刷時はプレビュー用の青いラインを非表示にする */
+    .title-row {
+        border-bottom: none !important;
+    }
+    .condition-row::after, .notes-row::after {
+        display: none !important; /* 【追加】印刷時は疑似要素の仕切り線を完全に消去 */
+    }
+    .condition-row {
+        padding-top: 35px !important; /* 【追加】印刷用の配置は絶対に変わらないように 25px で固定 */
+    }
+
+    /* 不要なUI要素は完全に非表示（物理的スペースも消す） */
+    .site-header, #input-form, #print-queue-section, .stamp-controls-panel, .damage-map-controls-panel, .restore-controls-panel {
+        display: none !important;
+    }
+
+    /* 個別印刷時：コンテナの幅制限や余白を完全に解除 */
+    body:not(.is-batch-printing) .container {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        display: block !important;
+    }
+
+    body:not(.is-batch-printing) .preview-column {
+        display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        gap: 0 !important;
+    }
+
+    /* 一括印刷時：コンテナ全体を完全に非表示にし、一切のスペースを取らせない */
+    body.is-batch-printing .site-header,
+    body.is-batch-printing .container {
+        display: none !important;
+    }
+
+    /* 印刷モードによる表示切り替え */
+    body.is-batch-printing #print-batch-container {
+        display: flex !important;
+        flex-direction: column !important;
+        visibility: visible !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    body.is-batch-printing #preview-container {
+        display: none !important;
+    }
+    body.is-batch-printing #print-batch-container * {
+        visibility: visible !important;
+    }
+
+    /* 個別印刷時のスタイル */
+    body:not(.is-batch-printing) #price-card,
+    body:not(.is-batch-printing) #price-card * {
+        visibility: visible !important;
+    }
+
+    body:not(.is-batch-printing) #preview-container {
+        display: block !important;
+        position: static !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background-color: transparent !important;
+    }
+    
+    body:not(.is-batch-printing) #price-card {
+        position: relative !important; /* absoluteからrelativeへ変更。コンテナのフローに従わせる */
+        left: 0 !important;
+        top: 0 !important;
+    }
+
+    /* プライスカードの共通印刷スタイル */
+    .price-card-template {
+        width: 147mm !important;
+        height: 104mm !important; /* 105mmから1mm減らして確実にはみ出しを防ぐ */
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        margin: 0 auto !important;
+        padding: 0.5mm 0mm 0.5mm 0.5mm !important;
+        border: none !important;
+        box-shadow: none !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        background-color: var(--card-bg) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        visibility: visible !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    /* 一括印刷時は、カード間にのみ改ページを入れる */
+    body.is-batch-printing .price-card-template {
+        position: relative !important;
+    }
+
+    body.is-batch-printing .price-card-template:not(:last-child) {
+        page-break-after: always !important;
+        break-after: page !important;
+    }
+
+    .card-row {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        page-break-before: avoid !important;
+        break-before: avoid !important;
+    }
+
+    .barcode-svg, .timestamp-div {
+        position: absolute !important;
+        z-index: 10 !important;
+        visibility: visible !important;
+    }
+    .barcode-svg { top: 150px !important; right: 45px !important; }
+    .timestamp-div { top: 130px !important; right: 45px !important; font-size: 10pt !important; color: #555 !important; }
+    
+    /* 個別の行スタイル上書きはプレビューと同じにするため削除 */
+    .check-section, .check-section .check-item { visibility: visible !important; }
+    .check-section { font-size: 10pt !important; line-height: 1.2 !important; }
+
+    /* ダメージマップ印刷用スタイル */
+    .damage-map-container {
+        position: absolute !important;
+        bottom: 12px !important;
+        left: 80mm !important; /* 金額の右隣（80mm）に指定位置で固定 */
+        width: 30mm !important; /* サイズを30mmに指定変更 */
+        height: 30mm !important; /* サイズを30mmに指定変更 */
+        display: flex !important;
+        visibility: visible !important;
+        z-index: 5 !important;
+    }
+    .damage-map-container svg {
+        visibility: visible !important;
+        stroke: #b0b0b0 !important; /* 印刷時も薄いグレーの線 */
+        fill: none !important;
+        stroke-width: 1.5px !important;
+    }
+
+    /* スタンプ印刷用スタイル (商品名枠の高さに合わせた垂直・縦書きの赤いライン) */
+    .card-stamp {
+        box-sizing: border-box !important;
+        position: absolute !important;
+        top: 0 !important;
+        right: 14px !important;
+        width: 28px !important;
+        height: 3.5cm !important; /* タイトル枠（2cm）を超えて下に垂れ下がる3.5cmのしおり形状 */
+        background-color: #e60000 !important;
+        color: #ffffff !important;
+        font-weight: 900 !important;
+        font-size: 13px !important;
+        transform: none !important; /* 垂直 */
+        box-shadow: none !important;
+        display: none !important;
+        
+        /* 縦書きの指定 */
+        writing-mode: vertical-rl !important;
+        text-orientation: upright !important;
+        
+        align-items: center !important;
+        justify-content: flex-start !important;
+        text-align: center !important;
+        padding: 12px 0 16px 0 !important; /* 上部パディングを12pxに調整し、上端からの適度な美しい隙間を確保 */
+        z-index: 10 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        
+        /* リボン端の三角形（V字）の切り抜き */
+        clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% calc(100% - 12px), 0% 100%) !important;
+    }
+    .card-stamp.active {
+        display: flex !important;
+    }
+}
+
+/* --- スタンプ (右上配置・商品名枠の高さに合わせた垂直・縦書きの赤いライン) --- */
 .card-stamp {
-    box-sizing: border-box; /* パディング増加による帯全体の幅の伸び（はみ出し）を防ぐ */
+    box-sizing: border-box;
     position: absolute;
-    top: -20px;             /* はみ出さないよう上外側へシフト */
-    right: -55px;           /* 位置を右上コーナーの境界にフィットさせる */
+    top: 0;                 /* カードの最上端にぴったり配置 */
+    right: 14px;            /* カードの右端から14pxの位置に配置 */
     left: auto;
-    width: 240px;           /* 幅240px */
-    height: 24px;           /* 太さ24px */
-    background-color: rgba(230, 0, 0, 0.75);
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-    transform: rotate(45deg);
+    width: 28px;            /* 縦書きにフィットするスマートな幅 */
+    height: 3.5cm;          /* 商品タイトル行(2cm)を超えて下部へ垂れ下がる3.5cmの長さ */
+    background-color: #e60000; /* 鮮やかな赤いライン */
+    color: #ffffff;         /* 白文字 */
+    font-weight: 900;       /* 太めのフォント */
+    font-size: 13px;        /* 縦書きに適した美しいサイズ */
+    transform: none;        /* 斜め回転を廃止し、素直な垂直に */
     box-shadow: none;
     display: none;
     z-index: 10;
-    letter-spacing: 2px;
-    text-indent: 2px;
-    padding-left: 90px;     /* 右下へスライドし、完璧な位置へ調整 */
-    padding-right: 0;
+    
+    /* 縦書き（縦型レイアウト）の指定 */
+    writing-mode: vertical-rl;
+    text-orientation: upright; /* アルファベットも回転させずに縦にまっすぐ並べる */
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 12px 0 16px 0;  /* 上部パディングを12pxに調整し、上端からの適度な美しい隙間を確保 */
+    overflow: hidden;
+    white-space: nowrap;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    
+    /* リボン端の三角形（V字）の切り抜き */
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% calc(100% - 12px), 0% 100%);
 }
 
 .card-stamp.active {
-    display: flex; /* ブロック要素ではなくFlexコンテナとして表示 */
+    display: flex;
 }
 
 /* --- スタンプ選択ボタン --- */
