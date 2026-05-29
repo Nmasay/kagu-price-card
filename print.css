@@ -208,6 +208,9 @@ body.is-batch-printing .price-card-template:not(:last-child) {
     
     /* リボン端の三角形（V字）の切り抜き */
     clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% calc(100% - 12px), 0% 100%) !important;
+    
+    /* 文字間隔の調整 */
+    letter-spacing: 2px !important;
 }
 .card-stamp.active {
     display: flex !important;

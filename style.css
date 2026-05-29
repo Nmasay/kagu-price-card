@@ -509,6 +509,9 @@ button {
     
     /* リボン端の三角形（V字）の切り抜き */
     clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% calc(100% - 12px), 0% 100%);
+    
+    /* 文字間隔の調整 */
+    letter-spacing: 2px;
 }
 .card-stamp.active {
     display: flex;
