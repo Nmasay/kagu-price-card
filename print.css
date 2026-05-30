@@ -183,9 +183,9 @@ body.is-batch-printing .price-card-template:not(:last-child) {
     box-sizing: border-box !important;
     position: absolute !important;
     top: 0 !important;
-    right: 14px !important;
-    width: 28px !important;
-    height: 3.5cm !important; /* タイトル枠（2cm）を超えて下に垂れ下がる3.5cmのしおり形状 */
+    right: 4mm !important;
+    width: 8mm !important;
+    height: 40mm !important; /* タイトル枠（2cm）を超えて下に垂れ下がる3.5cmのしおり形状 */
     background-color: var(--stamp-color, #e60000) !important;
     color: #ffffff !important;
     font-weight: 900 !important;
@@ -201,7 +201,7 @@ body.is-batch-printing .price-card-template:not(:last-child) {
     align-items: center !important;
     justify-content: flex-start !important;
     text-align: center !important;
-    padding: 12px 0 16px 0 !important; /* 上部パディングを12pxに調整し、上端からの適度な美しい隙間を確保 */
+    padding: 26px 0 16px 0 !important; /* 上部パディングを12pxに調整し、上端からの適度な美しい隙間を確保 */
     z-index: 10 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
