@@ -46,7 +46,7 @@ body:not(.is-batch-printing) {
 }
 
 /* 不要なUI要素は完全に非表示（物理的スペースも消す） */
-.site-header, #input-form, #print-queue-section, .stamp-controls-panel, .damage-map-controls-panel, .restore-controls-panel {
+.site-header, #input-form, #print-queue-section, .stamp-controls-panel, .damage-map-controls-panel, .restore-controls-panel, .ledger-container {
     display: none !important;
 }
 
@@ -71,7 +71,8 @@ body:not(.is-batch-printing) .preview-column {
 
 /* 一括印刷時：コンテナ全体を完全に非表示にし、一切のスペースを取らせない */
 body.is-batch-printing .site-header,
-body.is-batch-printing .container {
+body.is-batch-printing .container,
+body.is-batch-printing .ledger-container {
     display: none !important;
 }
 

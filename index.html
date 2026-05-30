@@ -10,7 +10,7 @@
     <title>プライスカード作成ツール</title>
     <link rel="icon" href="images/app_icon.png" type="image/png"> <!-- 【追加】アプリアイコンをファビコンに指定 -->
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="print.css" media="print"> <!-- 【追加】印刷用スタイルを完全分離して読み込み -->
+    <link rel="stylesheet" href="print.css?v=1.0.1" media="print"> <!-- 【追加】印刷用スタイルを完全分離して読み込み -->
     <!-- JsBarcodeライブラリをCDNから読み込み -->
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
 </head>
@@ -177,6 +177,44 @@
                 <button type="button" id="clear-queue-button" class="action-button danger-button" style="width: 100%; margin: 0; padding: 10px 0; font-size: 14px;" disabled>リストクリア</button>
             </div>
             <ul id="print-queue-list"></ul>
+        </div>
+    </div>
+
+    <!-- 画面下部：発行済みプライス一覧セクション -->
+    <div class="ledger-container">
+        <div class="ledger-header">
+            <div class="ledger-title-area">
+                <h2>📂 発行済みプライス一覧</h2>
+                <span class="ledger-count-badge"><span id="ledger-count">0</span>件の商品データ</span>
+            </div>
+            <div class="ledger-search-bar">
+                <div class="search-input-wrapper">
+                    <input type="text" id="ledger-search-input" placeholder="商品名または備考で検索...">
+                    <button type="button" id="ledger-search-clear-btn" class="search-clear-btn" title="検索をクリア">&times;</button>
+                </div>
+                <select id="ledger-condition-filter">
+                    <option value="">すべての状態</option>
+                    <option value="中古">中古</option>
+                    <option value="新品">新品</option>
+                </select>
+            </div>
+        </div>
+        <div class="ledger-table-wrapper">
+            <table class="ledger-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">状態</th>
+                        <th style="width: 250px;">商品名</th>
+                        <th style="width: 120px;">金額</th>
+                        <th style="width: 180px;">スタンプ / ダメージ</th>
+                        <th>備考</th>
+                        <th style="width: 280px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="ledger-table-body">
+                    <!-- 動的に生成されます -->
+                </tbody>
+            </table>
         </div>
     </div>
 

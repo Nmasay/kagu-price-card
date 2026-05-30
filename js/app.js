@@ -1,5 +1,5 @@
 import { state, saveQueueToLocalStorage } from './state.js';
-import { initDB, saveProductToDB, getProductFromDB } from './db.js';
+import { initDB, saveProductToDB, getProductFromDB, getAllProductsFromDB, deleteProductFromDB } from './db.js';
 import { damageMapSVGs } from './config.js';
 import { HistoryManager } from './history.js';
 import {
@@ -13,7 +13,10 @@ import {
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- IndexedDB 初期化 (永久商品台帳データベース) ---
-    initDB();
+    initDB(() => {
+        // DB初期化完了後に一覧を描画
+        renderLedger();
+    });
 
     // --- DOM要素 ---
     const titleInput = document.getElementById('product-title');
@@ -38,6 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const printQueueList = document.getElementById('print-queue-list');
     const queueCountSpan = document.getElementById('queue-count');
     const printBatchContainer = document.getElementById('print-batch-container');
+
+    // 商品台帳要素
+    const ledgerSearchInput = document.getElementById('ledger-search-input');
+    const ledgerSearchClearBtn = document.getElementById('ledger-search-clear-btn');
+    const ledgerConditionFilter = document.getElementById('ledger-condition-filter');
+    const ledgerTableBody = document.getElementById('ledger-table-body');
+    const ledgerCountSpan = document.getElementById('ledger-count');
 
     const previewTitle = document.getElementById('preview-title');
     const previewCondition = document.getElementById('preview-condition');
@@ -569,6 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (damageMapSelect) damageMapSelect.value = '';
             
             updatePreview();
+            renderLedger();
         });
     });
 
@@ -965,6 +976,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (validItems.length > 0) {
                     state.printQueue = [...validItems, ...state.printQueue];
                     updateQueueUI();
+                    renderLedger();
                     alert(`${validItems.length}件の商品データをインポートし、復元用バーコードを登録・付与しました。`);
                 } else {
                     alert('データベースへの登録に失敗しました。');
@@ -1103,18 +1115,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         saveProductToDB(itemData, (productCode) => {
             if (productCode) {
-                const previewRestoreSvg = document.getElementById('restore-barcode');
-                const restoreVal = generateRestoreBarcodeValue(productCode, itemData.condition, itemData.stampText, itemData.damageMap);
-                drawRestoreBarcode(previewRestoreSvg, restoreVal);
+                state.editingProductCode = productCode; // 描画処理がupdatePreviewで消えないようにコードを設定
             }
 
             updatePreview();
+            renderLedger();
 
             // 描画が確実に適用されるよう微小なディレイを挟んで印刷ダイアログを表示
             setTimeout(() => {
                 window.onafterprint = () => {
                     window.onafterprint = null;
                     state.editingProductCode = null; // 印刷後に編集状態をクリア（新規作成状態に戻す）
+                    updatePreview(); // クリア状態をプレビューにも反映
                 };
                 window.print();
             }, 100);
@@ -1172,6 +1184,249 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (deliveryOptionsSelect) {
         deliveryOptionsSelect.addEventListener('change', updatePreview);
+    }
+
+    // --- 登録商品台帳の制御ロジック ---
+    function renderLedger() {
+        getAllProductsFromDB((products) => {
+            if (!ledgerTableBody) return;
+            
+            // フィルタリング処理
+            const query = (ledgerSearchInput ? ledgerSearchInput.value.trim().toLowerCase() : '');
+            const conditionFilter = (ledgerConditionFilter ? ledgerConditionFilter.value : '');
+            
+            // クリアボタンの表示切り替え
+            if (ledgerSearchClearBtn) {
+                ledgerSearchClearBtn.style.display = query ? 'block' : 'none';
+            }
+
+            const filteredProducts = products.filter(product => {
+                // 状態フィルター
+                if (conditionFilter && product.condition !== conditionFilter) {
+                    return false;
+                }
+                // キーワードフィルター
+                if (query) {
+                    const titleMatch = (product.title || '').toLowerCase().includes(query);
+                    const notesMatch = (product.notes || '').toLowerCase().includes(query);
+                    const codeStr = String(product.id).padStart(5, '0');
+                    const codeMatch = codeStr.includes(query);
+                    return titleMatch || notesMatch || codeMatch;
+                }
+                return true;
+            });
+
+            // 件数表示の更新
+            if (ledgerCountSpan) {
+                ledgerCountSpan.textContent = filteredProducts.length;
+            }
+
+            ledgerTableBody.innerHTML = '';
+
+            if (filteredProducts.length === 0) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.setAttribute('colspan', '6');
+                td.className = 'ledger-table-empty';
+                td.textContent = query || conditionFilter ? '条件に合致する商品はありません。' : '発行済みのプライスカードはありません。';
+                tr.appendChild(td);
+                ledgerTableBody.appendChild(tr);
+                return;
+            }
+
+            filteredProducts.forEach(product => {
+                const tr = document.createElement('tr');
+                const productCodeStr = String(product.id).padStart(5, '0');
+
+                // 1. 状態
+                const tdCondition = document.createElement('td');
+                tdCondition.textContent = product.condition || '中古';
+                tdCondition.style.color = product.condition === '中古' ? '#d9534f' : '#5cb85c';
+                tdCondition.style.fontWeight = 'bold';
+                tr.appendChild(tdCondition);
+
+                // 3. 商品名
+                const tdTitle = document.createElement('td');
+                tdTitle.textContent = product.title || '(名称未入力)';
+                tdTitle.style.fontWeight = 'bold';
+                tr.appendChild(tdTitle);
+
+                // 4. 金額
+                const tdPrice = document.createElement('td');
+                const priceVal = parseInt(product.price, 10);
+                tdPrice.textContent = !isNaN(priceVal) ? `¥${priceVal.toLocaleString()}` : '¥---';
+                tdPrice.style.fontWeight = 'bold';
+                tr.appendChild(tdPrice);
+
+                // 5. スタンプ / ダメージ
+                const tdStampDamage = document.createElement('td');
+                tdStampDamage.style.display = 'flex';
+                tdStampDamage.style.flexWrap = 'wrap';
+                tdStampDamage.style.gap = '6px';
+                tdStampDamage.style.alignItems = 'center';
+                
+                if (product.stampText) {
+                    const stampBadge = document.createElement('span');
+                    stampBadge.className = 'stamp-badge';
+                    stampBadge.style.backgroundColor = product.stampColor || '#e60000';
+                    stampBadge.textContent = product.stampText;
+                    tdStampDamage.appendChild(stampBadge);
+                }
+                
+                if (product.damageMap) {
+                    const damageSpan = document.createElement('span');
+                    damageSpan.className = 'damage-icon';
+                    
+                    const damageEmojiMap = {
+                        'sofa': '🛋️',
+                        'chair': '🪑',
+                        'table': '🟫',
+                        'cabinet_tall': '🪟',
+                        'cabinet_wide': '📺',
+                        'cupboard': '🍽️',
+                        'bed': '🛏️',
+                        'color_box': '🗄️',
+                        'circle': '⚪️',
+                        'rect_vertical': '▮',
+                        'rect_horizontal': '▬',
+                        'square': '◼️'
+                    };
+                    damageSpan.textContent = damageEmojiMap[product.damageMap] || '🗺️';
+                    damageSpan.title = `ダメージマップ: ${product.damageMap}`;
+                    tdStampDamage.appendChild(damageSpan);
+                }
+                tr.appendChild(tdStampDamage);
+
+                // 6. 備考
+                const tdNotes = document.createElement('td');
+                tdNotes.textContent = product.notes ? product.notes.replace(/\n/g, ' ') : '';
+                tdNotes.style.fontSize = '0.9em';
+                tdNotes.style.color = '#555';
+                tr.appendChild(tdNotes);
+
+                // 7. 操作ボタン
+                const tdActions = document.createElement('td');
+                const actionsContainer = document.createElement('div');
+                actionsContainer.className = 'action-buttons';
+
+                // 編集ボタン
+                const editBtn = document.createElement('button');
+                editBtn.type = 'button';
+                editBtn.className = 'ledger-action-btn edit';
+                editBtn.innerHTML = '📝 編集';
+                editBtn.title = 'フォームに読み込む';
+                editBtn.onclick = () => {
+                    state.editingProductCode = productCodeStr;
+                    titleInput.value = product.title || '';
+                    titleFontSizeInput.value = product.titleFontSize || 50;
+                    conditionSelect.value = product.condition || '中古';
+                    notesTextarea.value = product.notes || '';
+                    notesFontSizeInput.value = product.notesFontSize || 30;
+                    priceInput.value = isNaN(product.price) ? '' : product.price;
+                    if (priceBeforeTaxInput) {
+                        priceBeforeTaxInput.value = isNaN(product.price) ? '' : Math.round(product.price / 1.1);
+                    }
+                    
+                    if (deliveryOptionsSelect && product.deliveryOptionText) {
+                        for (let i = 0; i < deliveryOptionsSelect.options.length; i++) {
+                            if (deliveryOptionsSelect.options[i].text === product.deliveryOptionText) {
+                                deliveryOptionsSelect.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (titleFontSizeValueSpan) titleFontSizeValueSpan.textContent = product.titleFontSize || 50;
+                    if (notesFontSizeValueSpan) notesFontSizeValueSpan.textContent = product.notesFontSize || 30;
+
+                    state.currentStamp = product.stampText || '';
+                    let matchedPreset = false;
+                    stampButtons.forEach(b => {
+                        b.classList.remove('selected');
+                        if (state.currentStamp && b.dataset.stamp === state.currentStamp) {
+                           b.classList.add('selected');
+                           matchedPreset = true;
+                        }
+                    });
+                    if (!state.currentStamp) {
+                        if (clearStampBtn) clearStampBtn.classList.add('selected');
+                        if (customStampInput) customStampInput.value = '';
+                    } else if (!matchedPreset) {
+                        if (customStampInput) customStampInput.value = state.currentStamp;
+                    } else {
+                        if (customStampInput) customStampInput.value = '';
+                    }
+
+                    state.currentStampColor = product.stampColor || '#e60000';
+                    stampColorButtons.forEach(b => {
+                        b.classList.remove('selected');
+                        if (b.dataset.color === state.currentStampColor) {
+                            b.classList.add('selected');
+                        }
+                    });
+
+                    state.currentDamageMap = product.damageMap || '';
+                    if (damageMapSelect) {
+                        damageMapSelect.value = state.currentDamageMap;
+                    }
+
+                    updatePreview();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+                actionsContainer.appendChild(editBtn);
+
+                // 印刷待ちリストに追加ボタン
+                const addQueueBtn = document.createElement('button');
+                addQueueBtn.type = 'button';
+                addQueueBtn.className = 'ledger-action-btn add-queue';
+                addQueueBtn.innerHTML = '➕ リストに追加';
+                addQueueBtn.title = '印刷待ちに追加';
+                addQueueBtn.onclick = () => {
+                    const queueItem = {
+                        productCode: productCodeStr,
+                        title: product.title,
+                        titleFontSize: product.titleFontSize || 50,
+                        condition: product.condition || '中古',
+                        notes: product.notes || '',
+                        notesFontSize: product.notesFontSize || 30,
+                        deliveryOptionText: product.deliveryOptionText || '',
+                        price: product.price,
+                        stampText: product.stampText || '',
+                        stampColor: product.stampColor || '#e60000',
+                        damageMap: product.damageMap || '',
+                        selected: true
+                    };
+                    
+                    const existingIdx = state.printQueue.findIndex(q => q.productCode === productCodeStr);
+                    if (existingIdx !== -1) {
+                        state.printQueue[existingIdx] = queueItem;
+                    } else {
+                        state.printQueue.unshift(queueItem);
+                    }
+                    updateQueueUI();
+                };
+                actionsContainer.appendChild(addQueueBtn);
+
+                tdActions.appendChild(actionsContainer);
+                tr.appendChild(tdActions);
+
+                ledgerTableBody.appendChild(tr);
+            });
+        });
+    }
+
+    // 検索・フィルタリングのイベント
+    if (ledgerSearchInput) {
+        ledgerSearchInput.addEventListener('input', renderLedger);
+    }
+    if (ledgerSearchClearBtn) {
+        ledgerSearchClearBtn.addEventListener('click', () => {
+            ledgerSearchInput.value = '';
+            renderLedger();
+        });
+    }
+    if (ledgerConditionFilter) {
+        ledgerConditionFilter.addEventListener('change', renderLedger);
     }
 
     // --- 初期表示 ---

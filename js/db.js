@@ -73,3 +73,51 @@ export function getProductFromDB(id, callback) {
         if (callback) callback(null);
     };
 }
+
+// --- すべての商品データの取得 (IDの降順、新しい順) ---
+export function getAllProductsFromDB(callback) {
+    if (!db) {
+        if (callback) callback([]);
+        return;
+    }
+    const transaction = db.transaction(['products'], 'readonly');
+    const store = transaction.objectStore('products');
+    const products = [];
+    
+    // カーソルを'prev'（逆順）でオープンし、新規登録した商品が上に来るように取得
+    const request = store.openCursor(null, 'prev');
+    request.onsuccess = (e) => {
+        const cursor = e.target.result;
+        if (cursor) {
+            products.push(cursor.value);
+            cursor.continue();
+        } else {
+            if (callback) callback(products);
+        }
+    };
+    request.onerror = (e) => {
+        console.error('Failed to get all products from DB:', e.target.error);
+        if (callback) callback([]);
+    };
+}
+
+// --- 商品データの削除 ---
+export function deleteProductFromDB(id, callback) {
+    if (!db) {
+        if (callback) callback(false);
+        return;
+    }
+    const transaction = db.transaction(['products'], 'readwrite');
+    const store = transaction.objectStore('products');
+    const request = store.delete(id);
+    
+    request.onsuccess = () => {
+        console.log(`[IndexedDB] 商品データを削除しました ID: ${id}`);
+        if (callback) callback(true);
+    };
+    request.onerror = (e) => {
+        console.error(`Failed to delete product ID: ${id} from DB:`, e.target.error);
+        if (callback) callback(false);
+    };
+}
+
