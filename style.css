@@ -477,7 +477,7 @@ button {
 
 
 /* --- 印刷用スタイル --- */
-
+@media print {
 .card-stamp {
     box-sizing: border-box;
     position: absolute;
