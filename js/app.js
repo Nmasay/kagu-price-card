@@ -1099,10 +1099,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     printButton.addEventListener('click', () => {
-        // 印刷前の編集状態を記憶しておく
-        const wasNewProduct = (state.editingProductCode === null);
-        const originalEditingCode = state.editingProductCode;
-
         // 通常の個別印刷時にも、直前に IndexedDB 永久台帳へ保存して復元用バーコードを描画する
         const itemData = {
             title: titleInput.value.trim(),
@@ -1129,36 +1125,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 window.onafterprint = () => {
                     window.onafterprint = null;
-                    
-                    // 印刷終了の確認処理 (ダイアログ遷移の安定のため少し待つ)
-                    setTimeout(() => {
-                        const printed = confirm("実際にプライスカードを印刷しましたか？\n（「キャンセル」を押すと、台帳への登録とID発行を破棄します）");
-                        
-                        if (printed) {
-                            // 印刷成功時
-                            state.editingProductCode = null; // 印刷完了したので新規作成状態に戻す
-                            updatePreview();
-                            renderLedger();
-                        } else {
-                            // 印刷キャンセル時
-                            if (wasNewProduct && productCode) {
-                                // 新規商品の場合は、IndexedDBから物理削除してIDを破棄
-                                const idToDelete = parseInt(productCode, 10);
-                                deleteProductFromDB(idToDelete, (success) => {
-                                    state.editingProductCode = null;
-                                    updatePreview();
-                                    renderLedger();
-                                    alert(`商品コード [${productCode}] の発行および登録を破棄しました。（入力内容は維持されます）`);
-                                });
-                            } else {
-                                // 既存商品の編集中の場合は、削除せず、元の編集状態IDを維持
-                                state.editingProductCode = originalEditingCode;
-                                updatePreview();
-                                renderLedger();
-                                alert("印刷がキャンセルされました。編集状態を維持します。");
-                            }
-                        }
-                    }, 300);
+                    state.editingProductCode = null; // 印刷後に編集状態をクリア（新規作成状態に戻す）
+                    updatePreview(); // クリア状態をプレビューにも反映
                 };
                 window.print();
             }, 100);
