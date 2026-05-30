@@ -27,26 +27,30 @@ body {
 }
 
 .container {
-    max-width: 1400px; /* 3カラムのために広げる */
+    max-width: 1400px;
+    /* 3カラムのために広げる */
     margin: 20px auto;
     background: var(--bg-overlay);
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     display: flex;
     gap: 30px;
     align-items: flex-start;
 }
 
-h1, h2 {
+h1,
+h2 {
     margin-bottom: 20px;
 }
 
 .preview-column {
-    flex: 0 0 auto; /* 横幅はプレビューのサイズに合わせる（伸びない） */
+    flex: 0 0 auto;
+    /* 横幅はプレビューのサイズに合わせる（伸びない） */
     display: flex;
     flex-direction: column;
-    gap: 10px; /* パネル間の隙間を狭める */
+    gap: 10px;
+    /* パネル間の隙間を狭める */
 }
 
 #preview-container {
@@ -63,9 +67,11 @@ h1, h2 {
 .price-card-template {
     width: 148mm;
     height: 105mm;
-    border: none; /* 外側の青枠と完全に繋げるためグレーの枠線を消去 */
+    border: none;
+    /* 外側の青枠と完全に繋げるためグレーの枠線を消去 */
     background-color: var(--card-bg);
-    padding: 0; /* 内部のラインが端まで届くように余白を削除 */
+    padding: 0;
+    /* 内部のラインが端まで届くように余白を削除 */
     box-sizing: border-box;
     position: relative;
     display: flex;
@@ -98,11 +104,13 @@ h1, h2 {
     word-break: break-word;
     line-height: 1.1;
     padding-top: 20px;
-    border-bottom: 10px solid #1979ff; /* プレビュー用ガイドライン（枠の半分の太さ） */
+    border-bottom: 10px solid #1979ff;
+    /* プレビュー用ガイドライン（枠の半分の太さ） */
 }
 
 /* --- 入力履歴リストのスタイル --- */
-.title-input-container, .notes-input-container {
+.title-input-container,
+.notes-input-container {
     position: relative;
 }
 
@@ -119,7 +127,7 @@ h1, h2 {
     overflow-y: auto;
     z-index: 1000;
     box-sizing: border-box;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .history-item {
@@ -163,22 +171,28 @@ h1, h2 {
 }
 
 .condition-row {
-    position: relative;     /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
+    position: relative;
+    /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
     min-height: 2.0cm;
     height: auto;
     color: red;
     font-weight: bold;
     font-size: 55px;
     justify-content: flex-start;
-    padding-left: 30px;     /* 【追加】青枠との被りを防ぐため、少し右へ寄せる */
+    padding-left: 30px;
+    /* 【追加】青枠との被りを防ぐため、少し右へ寄せる */
     padding-right: 40px;
-    padding-top: 15px;      /* 【変更】さらに少し上に上げるため、20px から 15px に変更 */
+    padding-top: 15px;
+    /* 【変更】さらに少し上に上げるため、20px から 15px に変更 */
 }
 
 .notes-row {
-    position: relative;     /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
-    height: 1.6cm;          /* 【変更】文字数に応じた自動縮小判定のため高さを1.6cmに固定 */
-    overflow: hidden;       /* 【追加】はみ出し時のスクロールバー表示を防ぐ */
+    position: relative;
+    /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
+    height: 1.6cm;
+    /* 【変更】文字数に応じた自動縮小判定のため高さを1.6cmに固定 */
+    overflow: hidden;
+    /* 【追加】はみ出し時のスクロールバー表示を防ぐ */
     color: blue;
     font-size: 30px;
     justify-content: flex-start;
@@ -188,17 +202,22 @@ h1, h2 {
     padding-right: 15px;
     white-space: pre-wrap;
     word-break: break-all;
-    flex-shrink: 0; /* 縮小されて文字が重なるのを防ぐ */
+    flex-shrink: 0;
+    /* 縮小されて文字が重なるのを防ぐ */
 }
 
 /* --- プレビュー用：状態行・備考行の下の、両端が途切れた細い青ライン --- */
-.condition-row::after, .notes-row::after {
+.condition-row::after,
+.notes-row::after {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 30px;             /* さらに短くするため、15px から 30px に余白を拡大 */
-    right: 30px;            /* さらに短くするため、15px から 30px に余白を拡大 */
-    height: 2px;            /* 青い細い線 */
+    left: 30px;
+    /* さらに短くするため、15px から 30px に余白を拡大 */
+    right: 30px;
+    /* さらに短くするため、15px から 30px に余白を拡大 */
+    height: 2px;
+    /* 青い細い線 */
     background-color: #1979ff;
     z-index: 5;
 }
@@ -207,7 +226,8 @@ h1, h2 {
     color: #ff0000;
     font-size: 18px;
     padding: 0 15px;
-    margin-top: 10px; /* 備考との間に隙間をあける */
+    margin-top: 10px;
+    /* 備考との間に隙間をあける */
     white-space: pre-wrap;
     word-break: break-word;
     width: 100%;
@@ -217,26 +237,32 @@ h1, h2 {
     align-items: flex-start;
     min-height: 1.2cm;
     height: auto;
-    flex-shrink: 0; /* 縮小されて文字が重なるのを防ぐ */
+    flex-shrink: 0;
+    /* 縮小されて文字が重なるのを防ぐ */
 }
 
 .price-row {
     min-height: 2.8cm;
     height: auto;
     font-weight: bold;
-    font-size: 75px;        /* 60px から 75px へ拡大（一回り大きく） */
+    font-size: 75px;
+    /* 60px から 75px へ拡大（一回り大きく） */
     justify-content: flex-start;
     padding-left: 30px;
-    padding-bottom: 45px;   /* 20px から 45px へ拡張し、金額を上にスライド */
+    padding-bottom: 45px;
+    /* 20px から 45px へ拡張し、金額を上にスライド */
     white-space: nowrap;
-    flex-grow: 1; /* 余ったスペースを下部で吸収 */
+    flex-grow: 1;
+    /* 余ったスペースを下部で吸収 */
 }
 
 /* バーコード */
 .barcode-svg {
     position: absolute;
-    top: 125px;             /* 【変更】日付と中古の上部揃え再調整として、115px から 125px に下げ */
-    right: 45px;            /* 右端の縦型バーコードと被らないように少し左へずらす */
+    top: 125px;
+    /* 【変更】日付と中古の上部揃え再調整として、115px から 125px に下げ */
+    right: 45px;
+    /* 右端の縦型バーコードと被らないように少し左へずらす */
     width: auto;
     z-index: 10;
 }
@@ -244,8 +270,10 @@ h1, h2 {
 /* 作成日時 */
 .timestamp-div {
     position: absolute;
-    top: 105px;             /* 【変更】プレビュー時は「中古」の文字上部と揃えるため、95px から 105px に下げ */
-    right: 45px;            /* バーコードの右端と揃える */
+    top: 105px;
+    /* 【変更】プレビュー時は「中古」の文字上部と揃えるため、95px から 105px に下げ */
+    right: 45px;
+    /* バーコードの右端と揃える */
     font-size: 14px;
     color: #666;
     z-index: 10;
@@ -256,7 +284,8 @@ h1, h2 {
     position: absolute;
     bottom: 38px;
     right: 5px;
-    width: 130px;            /* 【追加】"＿＿＿"が消えても全体の左端の位置をキープするため、幅を130pxに固定 */
+    width: 130px;
+    /* 【追加】"＿＿＿"が消えても全体の左端の位置をキープするため、幅を130pxに固定 */
     font-size: 10pt;
     color: #333;
     z-index: 10;
@@ -271,7 +300,8 @@ h1, h2 {
 
 #input-form {
     flex: 1;
-    min-width: 350px; /* 配達オプションの文字が切れない幅 */
+    min-width: 350px;
+    /* 配達オプションの文字が切れない幅 */
 }
 
 .form-group {
@@ -313,8 +343,13 @@ input[type="range"] {
     border-radius: 4px;
     margin: 8px 0;
 }
-input[type="range"]:hover { opacity: 1; }
-input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb {
+
+input[type="range"]:hover {
+    opacity: 1;
+}
+
+input[type="range"]::-webkit-slider-thumb,
+input[type="range"]::-moz-range-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 18px;
@@ -323,8 +358,9 @@ input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb
     cursor: pointer;
     border-radius: 50%;
     border: 2px solid #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
+
 .form-group .font-size-value {
     display: inline-block;
     min-width: 2.5em;
@@ -340,6 +376,7 @@ input[type="range"]::-webkit-slider-thumb, input[type="range"]::-moz-range-thumb
     gap: 10px;
     margin-top: 20px;
 }
+
 button {
     padding: 10px 20px;
     border: none;
@@ -348,42 +385,66 @@ button {
     font-size: 16px;
     transition: background-color 0.3s ease;
 }
+
 .action-button {
-    width: 155px; /* 全ての主要ボタンをこのサイズに統一 */
-    padding: 10px 0; /* 文字が入りきるように左右パディングを詰める */
+    width: 155px;
+    /* 全ての主要ボタンをこのサイズに統一 */
+    padding: 10px 0;
+    /* 文字が入りきるように左右パディングを詰める */
     text-align: center;
     font-size: 16px;
     box-sizing: border-box;
 }
+
 .primary-button {
     background-color: var(--primary-color);
     color: white;
 }
-.primary-button:hover { background-color: var(--primary-hover); }
-.primary-button:disabled { background-color: #a0cbfc; cursor: not-allowed; }
+
+.primary-button:hover {
+    background-color: var(--primary-hover);
+}
+
+.primary-button:disabled {
+    background-color: #a0cbfc;
+    cursor: not-allowed;
+}
 
 .secondary-button {
     background-color: var(--secondary-color);
     color: white;
 }
-.secondary-button:hover { background-color: var(--secondary-hover); }
+
+.secondary-button:hover {
+    background-color: var(--secondary-hover);
+}
 
 .danger-button {
     background-color: var(--danger-color);
     color: white;
 }
-.danger-button:hover { background-color: var(--danger-hover); }
-.danger-button:disabled { background-color: #f5a6b0; cursor: not-allowed; }
+
+.danger-button:hover {
+    background-color: var(--danger-hover);
+}
+
+.danger-button:disabled {
+    background-color: #f5a6b0;
+    cursor: not-allowed;
+}
 
 /* --- 印刷待ちキュー --- */
 .queue-section {
-    flex: 0 0 360px; /* ボタン2つ（155px×2+10px）がピッタリ収まる固定幅 */
-    box-sizing: border-box; /* パディングを含めて幅を計算させる（はみ出し防止） */
+    flex: 0 0 360px;
+    /* ボタン2つ（155px×2+10px）がピッタリ収まる固定幅 */
+    box-sizing: border-box;
+    /* パディングを含めて幅を計算させる（はみ出し防止） */
     padding: 20px;
     background: #f9f9f9;
     border-radius: 8px;
     border: 1px solid #ddd;
 }
+
 #print-queue-section {
     width: 320px;
     flex-shrink: 0;
@@ -397,10 +458,12 @@ button {
     align-items: center;
     margin-bottom: 15px;
 }
+
 .queue-header h3 {
     margin: 0;
     font-size: 1.2em;
 }
+
 .select-all-label {
     font-size: 0.9em;
     cursor: pointer;
@@ -408,19 +471,24 @@ button {
     align-items: center;
     gap: 4px;
 }
+
 #print-queue-list {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: none; /* 固定高さを解除 */
-    height: 0; /* flexboxで親の高さを押し広げないためのトリック */
+    max-height: none;
+    /* 固定高さを解除 */
+    height: 0;
+    /* flexboxで親の高さを押し広げないためのトリック */
     min-height: 0;
-    flex: 1; /* 親コンテナの残り高さを全て埋める */
+    flex: 1;
+    /* 親コンテナの残り高さを全て埋める */
     overflow-y: auto;
     border: 1px solid #ccc;
     background: #fff;
     border-radius: 4px;
 }
+
 #print-queue-list li {
     background: white;
     border: 3px solid #0056b3;
@@ -433,36 +501,45 @@ button {
     box-sizing: border-box;
     max-width: 100%;
 }
+
 .queue-item-info {
     display: flex;
     flex-direction: column;
-    flex: 1; /* 残りの領域を埋める */
-    min-width: 0; /* flexアイテム内のテキストがあふれるのを防ぐ */
+    flex: 1;
+    /* 残りの領域を埋める */
+    min-width: 0;
+    /* flexアイテム内のテキストがあふれるのを防ぐ */
 }
+
 .queue-item-controls {
     display: flex;
     align-items: center;
     gap: 5px;
 }
+
 .drag-handle {
     cursor: grab;
     color: #999;
     font-size: 1.2em;
     padding: 0 5px;
 }
+
 .drag-handle:active {
     cursor: grabbing;
 }
+
 #print-queue-list li.drag-over {
     border-top: 2px dashed #007bff;
     background-color: #f0f8ff;
 }
+
 .queue-item-checkbox {
     margin-right: 10px;
     cursor: pointer;
     width: 18px;
     height: 18px;
 }
+
 .move-btn {
     background: #eee;
     border: 1px solid #ccc;
@@ -471,9 +548,20 @@ button {
     font-size: 14px;
     border-radius: 3px;
 }
-.move-btn:hover { background: #ddd; }
-.queue-item-title { font-weight: bold; font-size: 0.9em; }
-.queue-item-price { font-size: 0.8em; color: #555; }
+
+.move-btn:hover {
+    background: #ddd;
+}
+
+.queue-item-title {
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.queue-item-price {
+    font-size: 0.8em;
+    color: #555;
+}
 
 
 /* --- 印刷用スタイル --- */
@@ -481,38 +569,50 @@ button {
 .card-stamp {
     box-sizing: border-box;
     position: absolute;
-    top: 0;                 /* カードの最上端にぴったり配置 */
-    right: 4mm;            /* カードの右端から14pxの位置に配置 */
+    top: 0;
+    /* カードの最上端にぴったり配置 */
+    right: 4mm;
+    /* カードの右端から14pxの位置に配置 */
     left: auto;
-    width: 8mm;            /* 縦書きにフィットするスマートな幅 */
-    height: 40mm;          /* 商品タイトル行(2cm)を超えて下部へ垂れ下がる3.5cmの長さ */
-    background-color: var(--stamp-color, #e60000); /* 鮮やかな赤いライン */
-    color: #ffffff;         /* 白文字 */
-    font-weight: 900;       /* 太めのフォント */
-    font-size: 13px;        /* 縦書きに適した美しいサイズ */
-    transform: none;        /* 斜め回転を廃止し、素直な垂直に */
+    width: 8mm;
+    /* 縦書きにフィットするスマートな幅 */
+    height: 40mm;
+    /* 商品タイトル行(2cm)を超えて下部へ垂れ下がる3.5cmの長さ */
+    background-color: var(--stamp-color, #e60000);
+    /* 鮮やかな赤いライン */
+    color: #ffffff;
+    /* 白文字 */
+    font-weight: 900;
+    /* 太めのフォント */
+    font-size: 18px;
+    /* 縦書きに適した美しいサイズ */
+    transform: none;
+    /* 斜め回転を廃止し、素直な垂直に */
     box-shadow: none;
     display: none;
     z-index: 10;
-    
+
     /* 縦書き（縦型レイアウト）の指定 */
     writing-mode: vertical-rl;
-    text-orientation: upright; /* アルファベットも回転させずに縦にまっすぐ並べる */
+    text-orientation: upright;
+    /* アルファベットも回転させずに縦にまっすぐ並べる */
     align-items: center;
     justify-content: flex-start;
     text-align: center;
-    padding: 26px 0 16px 0;  /* 上部パディングを12pxに調整し、上端からの適度な美しい隙間を確保 */
+    padding: 26px 0 16px 0;
+    /* 上部パディングを12pxに調整し、上端からの適度な美しい隙間を確保 */
     overflow: hidden;
     white-space: nowrap;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-    
+
     /* リボン端の三角形（V字）の切り抜き */
     clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 50% calc(100% - 12px), 0% 100%);
-    
+
     /* 文字間隔の調整 */
     letter-spacing: 2px;
 }
+
 .card-stamp.active {
     display: flex;
 }
@@ -529,12 +629,15 @@ button {
     cursor: pointer;
     transition: transform 0.1s, opacity 0.2s;
 }
+
 .stamp-btn:hover {
     opacity: 0.8;
 }
+
 .stamp-btn:active {
     transform: scale(0.95);
 }
+
 .stamp-btn.selected {
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
 }
@@ -550,9 +653,11 @@ button {
     padding: 0;
     transition: transform 0.1s, box-shadow 0.2s;
 }
+
 .stamp-color-btn:hover {
     transform: scale(1.1);
 }
+
 .stamp-color-btn.selected {
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
 }
@@ -560,23 +665,32 @@ button {
 /* --- ダメージマップ（家具の線画）のスタイル --- */
 .damage-map-container {
     position: absolute;
-    bottom: 12px;           /* 下部から少し浮かせた位置 */
-    left: 80mm;             /* 金額の右隣（80mm）に指定位置で固定 */
-    width: 30mm;            /* サイズを30mmに指定変更 */
-    height: 30mm;           /* サイズを30mmに指定変更 */
-    z-index: 5;             /* 背景とテキストの邪魔にならない重ね順 */
+    bottom: 12px;
+    /* 下部から少し浮かせた位置 */
+    left: 80mm;
+    /* 金額の右隣（80mm）に指定位置で固定 */
+    width: 30mm;
+    /* サイズを30mmに指定変更 */
+    height: 30mm;
+    /* サイズを30mmに指定変更 */
+    z-index: 5;
+    /* 背景とテキストの邪魔にならない重ね順 */
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none;    /* 操作の邪魔をしない */
+    pointer-events: none;
+    /* 操作の邪魔をしない */
 }
 
 .damage-map-container svg {
     width: 100%;
     height: 100%;
-    stroke: #b0b0b0;        /* うすいグレーの線 */
-    fill: none;             /* 塗りつぶしなし */
-    stroke-width: 1.5px;    /* 線の太さ */
+    stroke: #b0b0b0;
+    /* うすいグレーの線 */
+    fill: none;
+    /* 塗りつぶしなし */
+    stroke-width: 1.5px;
+    /* 線の太さ */
     stroke-linecap: round;
     stroke-linejoin: round;
 }
@@ -584,11 +698,16 @@ button {
 /* --- 復元用バーコード（右端・縦向き）のラッパースタイル --- */
 .restore-barcode-wrapper {
     position: absolute;
-    top: 250px;             /* 逆L字（Γ字型）の接続にするため、垂直位置を250pxに引き下げ */
-    right: -54px;           /* 右側へ寄せて金額バーコードとの被りを解消するための補正値 */
-    width: 153px;           /* 金額バーコードの横幅（JsBarcode幅1.5）に対応 */
-    height: 40px;           /* バーの高さ16に伴う全体の厚み（約40px）に対応 */
-    transform: translateY(-50%) rotate(90deg); /* 180度反転した縦向き */
+    top: 250px;
+    /* 逆L字（Γ字型）の接続にするため、垂直位置を250pxに引き下げ */
+    right: -54px;
+    /* 右側へ寄せて金額バーコードとの被りを解消するための補正値 */
+    width: 153px;
+    /* 金額バーコードの横幅（JsBarcode幅1.5）に対応 */
+    height: 40px;
+    /* バーの高さ16に伴う全体の厚み（約40px）に対応 */
+    transform: translateY(-50%) rotate(90deg);
+    /* 180度反転した縦向き */
     transform-origin: center center;
     z-index: 9999;
     display: flex;
@@ -613,6 +732,7 @@ button {
     box-sizing: border-box;
     transition: border-color 0.2s;
 }
+
 #restore-barcode-input:focus {
     border-color: #17a2b8;
     outline: none;

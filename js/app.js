@@ -1,76 +1,19 @@
+import { state, saveQueueToLocalStorage } from './state.js';
+import { initDB, saveProductToDB, getProductFromDB } from './db.js';
+import { damageMapSVGs } from './config.js';
+import { HistoryManager } from './history.js';
+import {
+    generateBarcodeValue,
+    renderBarcode,
+    generateRestoreBarcodeValue,
+    drawRestoreBarcode,
+    getStampTextByCode,
+    getDamageMapByCode
+} from './barcode.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- IndexedDB 初期化 (永久商品台帳データベース) ---
-    let db;
-    const dbRequest = indexedDB.open('kaguPriceCardDB', 1);
-    dbRequest.onupgradeneeded = (e) => {
-        const database = e.target.result;
-        if (!database.objectStoreNames.contains('products')) {
-            database.createObjectStore('products', { keyPath: 'id', autoIncrement: true });
-        }
-    };
-    dbRequest.onsuccess = (e) => {
-        db = e.target.result;
-        console.log('IndexedDB initialized successfully.');
-    };
-    dbRequest.onerror = (e) => {
-        console.error('IndexedDB open error:', e.target.error);
-    };
-
-    function saveProductToDB(productData, callback, existingProductCode) {
-        if (!db) {
-            console.warn('Database not ready. Callback with fallback.');
-            if (callback) callback(null);
-            return;
-        }
-        const transaction = db.transaction(['products'], 'readwrite');
-        const store = transaction.objectStore('products');
-        
-        // 引数がない場合は現在編集中のグローバル変数をフォールバックして使用する
-        const codeToUse = existingProductCode || editingProductCode;
-
-        let request;
-        if (codeToUse) {
-            const id = parseInt(codeToUse, 10);
-            productData.id = id;
-            request = store.put(productData);
-            console.log(`[IndexedDB] 上書き保存実行 ID: ${id}`);
-        } else {
-            request = store.add(productData);
-            console.log(`[IndexedDB] 新規追加実行`);
-        }
-
-        request.onsuccess = (e) => {
-            const id = e.target.result;
-            const productCode = String(id).padStart(5, '0');
-            if (callback) callback(productCode);
-        };
-        request.onerror = (e) => {
-            console.error('Failed to save product to DB:', e.target.error);
-            if (callback) callback(null);
-        };
-    }
-
-    function getProductFromDB(id, callback) {
-        if (!db) {
-            if (callback) callback(null);
-            return;
-        }
-        const transaction = db.transaction(['products'], 'readonly');
-        const store = transaction.objectStore('products');
-        const request = store.get(id);
-        request.onsuccess = (e) => {
-            if (callback) callback(e.target.result);
-        };
-        request.onerror = (e) => {
-            console.error('Failed to get product from DB:', e.target.error);
-            if (callback) callback(null);
-        };
-    }
-
-    // --- 定数 (Constants) ---
-    const BARCODE_PREFIX_USED = 20438000000n;
-    const BARCODE_PREFIX_NEW = 20451000000n;
-    const HISTORY_MAX_ITEMS = 100;
+    initDB();
 
     // --- DOM要素 ---
     const titleInput = document.getElementById('product-title');
@@ -107,14 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const titleHistoryListDiv = document.getElementById('title-history-list');
     const notesHistoryListDiv = document.getElementById('notes-history-list');
 
-    // --- 印刷待ちキュー ---
-    // localStorageから保存済みのキューを取得、なければ空配列
-    let printQueue = JSON.parse(localStorage.getItem('kagu-price-card-queue')) || [];
-    let draggedItemIndex = null; // ドラッグ中のアイテムインデックスを保持
-    let currentStamp = ''; // 現在選択されているスタンプ
-    let currentStampColor = '#e60000'; // 現在選択されているスタンプ色（デフォルト: 赤）
-    let editingProductCode = null; // 現在編集中の商品コード
-
     // --- スタンプボタンの初期化 ---
     const stampButtons = document.querySelectorAll('.stamp-btn');
     const stampColorButtons = document.querySelectorAll('.stamp-color-btn');
@@ -125,29 +60,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ダメージマップ要素の取得 ---
     const damageMapSelect = document.getElementById('damage-map-select');
     const previewDamageMap = document.getElementById('preview-damage-map');
-    let currentDamageMap = ''; // デフォルトはなし
-
-    // --- ダメージマップのSVG定義 ---
-    const damageMapSVGs = {
-        'sofa': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10,35 C10,25 20,20 50,20 C80,20 90,25 90,35 L90,75 L10,75 Z M10,45 C10,40 18,40 18,45 L18,75 L10,75 Z M90,45 C90,40 82,40 82,45 L82,75 L90,75 Z"/><line x1="50" y1="20" x2="50" y2="55"/><path d="M18,55 L82,55 C82,55 82,75 82,75 L18,75 Z"/><line x1="50" y1="55" x2="50" y2="75"/><line x1="15" y1="75" x2="15" y2="85"/><line x1="85" y1="75" x2="85" y2="85"/></svg>',
-        'chair': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M30,15 L70,15 L65,45 L35,45 Z"/><line x1="40" y1="15" x2="42" y2="45"/><line x1="50" y1="15" x2="50" y2="45"/><line x1="60" y1="15" x2="58" y2="45"/><polygon points="30,45 70,45 75,55 25,55"/><line x1="27" y1="55" x2="27" y2="90"/><line x1="73" y1="55" x2="73" y2="90"/><line x1="35" y1="45" x2="38" y2="85"/><line x1="65" y1="45" x2="62" y2="85"/><line x1="31" y1="70" x2="69" y2="70"/></svg>',
-        'table': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="10,35 70,35 90,20 30,20"/><polygon points="10,35 70,35 70,39 10,39"/><polygon points="70,35 90,20 90,24 70,39"/><rect x="12" y="39" width="6" height="45"/><rect x="64" y="39" width="6" height="45"/><rect x="84" y="24" width="5" height="45"/><rect x="32" y="24" width="5" height="42"/></svg>',
-        'cabinet_tall': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="25" y="10" width="50" height="80" rx="3"/><rect x="29" y="14" width="20" height="36"/><rect x="51" y="14" width="20" height="36"/><line x1="29" y1="26" x2="49" y2="26"/><line x1="29" y1="38" x2="49" y2="38"/><line x1="51" y1="26" x2="71" y2="26"/><line x1="51" y1="38" x2="71" y2="38"/><line x1="46" y1="30" x2="46" y2="34"/><line x1="54" y1="30" x2="54" y2="34"/><rect x="29" y="54" width="42" height="10"/><rect x="29" y="66" width="42" height="10"/><rect x="29" y="78" width="42" height="10"/><line x1="45" y1="59" x2="55" y2="59"/><line x1="45" y1="71" x2="55" y2="71"/><line x1="45" y1="83" x2="55" y2="83"/></svg>',
-        'cabinet_wide': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="30" width="80" height="40" rx="2"/><rect x="38" y="34" width="24" height="32"/><line x1="38" y1="50" x2="62" y2="50"/><rect x="14" y="34" width="20" height="32"/><rect x="66" y="34" width="20" height="32"/><circle cx="30" cy="50" r="2"/><circle cx="70" cy="50" r="2"/><line x1="15" y1="70" x2="12" y2="82"/><line x1="25" y1="70" x2="25" y2="82"/><line x1="75" y1="70" x2="75" y2="82"/><line x1="85" y1="70" x2="88" y2="82"/></svg>',
-        'cupboard': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="25" y="10" width="50" height="80" rx="3"/><rect x="29" y="14" width="42" height="26"/><line x1="50" y1="14" x2="50" y2="40"/><line x1="29" y1="22" x2="71" y2="22"/><line x1="29" y1="31" x2="71" y2="31"/><circle cx="47" cy="27" r="1"/><circle cx="53" cy="27" r="1"/><rect x="29" y="44" width="42" height="12"/><rect x="33" y="47" width="16" height="9"/><rect x="35" y="49" width="10" height="5"/><rect x="29" y="60" width="20" height="26"/><rect x="51" y="60" width="20" height="26"/><line x1="45" y1="70" x2="45" y2="76"/><line x1="55" y1="70" x2="55" y2="76"/></svg>',
-        'bed': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="30" width="6" height="50" rx="1"/><rect x="16" y="68" width="74" height="6" rx="1"/><rect x="18" y="74" width="5" height="10"/><rect x="78" y="74" width="5" height="10"/><rect x="16" y="52" width="74" height="16" rx="1"/><rect x="20" y="44" width="16" height="8" rx="2"/><path d="M40,50 L86,50 C88,50 90,52 90,54 L90,64 C90,66 88,68 86,68 L76,68"/><line x1="56" y1="50" x2="56" y2="68"/><line x1="72" y1="50" x2="72" y2="68"/></svg>',
-        'color_box': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="25" y="10" width="50" height="80" rx="3"/><rect x="29" y="14" width="42" height="22"/><line x1="29" y1="36" x2="71" y2="36"/><rect x="29" y="39" width="42" height="22"/><line x1="29" y1="61" x2="71" y2="61"/><rect x="29" y="64" width="42" height="22"/><line x1="29" y1="14" x2="35" y2="20"/><line x1="71" y1="14" x2="65" y2="20"/><line x1="35" y1="20" x2="65" y2="20"/><line x1="35" y1="20" x2="35" y2="36"/><line x1="65" y1="20" x2="65" y2="36"/><line x1="29" y1="39" x2="35" y2="45"/><line x1="71" y1="39" x2="65" y2="45"/><line x1="35" y1="45" x2="65" y2="45"/><line x1="35" y1="45" x2="35" y2="61"/><line x1="65" y1="45" x2="65" y2="61"/><line x1="29" y1="64" x2="35" y2="70"/><line x1="71" y1="64" x2="65" y2="70"/><line x1="35" y1="70" x2="65" y2="70"/><line x1="35" y1="70" x2="35" y2="86"/><line x1="65" y1="70" x2="65" y2="86"/></svg>',
-        'circle': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="30"/></svg>',
-        'rect_vertical': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="30" y="15" width="40" height="70" rx="4"/></svg>',
-        'rect_horizontal': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="15" y="30" width="70" height="40" rx="4"/></svg>',
-        'square': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="4"/></svg>'
-    };
 
     stampButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             stampButtons.forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            currentStamp = btn.dataset.stamp;
+            state.currentStamp = btn.dataset.stamp;
             if (customStampInput) customStampInput.value = ''; // プリセット選択時は自由入力をクリア
             updatePreview();
         });
@@ -157,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             stampColorButtons.forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            currentStampColor = btn.dataset.color || '#e60000';
+            state.currentStampColor = btn.dataset.color || '#e60000';
             updatePreview();
         });
     });
@@ -165,17 +83,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // ダメージマップセレクトボックスのイベント
     if (damageMapSelect) {
         damageMapSelect.addEventListener('change', (e) => {
-            currentDamageMap = e.target.value;
+            state.currentDamageMap = e.target.value;
             updatePreview();
         });
     }
 
     if (customStampInput) {
         customStampInput.addEventListener('input', (e) => {
-            currentStamp = e.target.value.trim();
+            state.currentStamp = e.target.value.trim();
             // プリセットボタンの選択状態を解除
             stampButtons.forEach(b => b.classList.remove('selected'));
-            if (currentStamp === '' && clearStampBtn) {
+            if (state.currentStamp === '' && clearStampBtn) {
                 clearStampBtn.classList.add('selected');
             }
             updatePreview();
@@ -185,152 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初期状態で「なし」を選択
     if (clearStampBtn) clearStampBtn.classList.add('selected');
 
-    // --- 履歴管理用クラス ---
-    class HistoryManager {
-        constructor(storageKey, inputElement, listElement, updateCallback) {
-            this.storageKey = storageKey;
-            this.inputElement = inputElement;
-            this.listElement = listElement;
-            this.updateCallback = updateCallback;
-
-            this.initEvents();
-        }
-
-        getHistory() {
-            return JSON.parse(localStorage.getItem(this.storageKey)) || [];
-        }
-
-        setHistory(history) {
-            localStorage.setItem(this.storageKey, JSON.stringify(history));
-        }
-
-        add(item) {
-            if (!item) return;
-            let history = this.getHistory();
-            if (!history.includes(item)) {
-                history.unshift(item);
-                if (history.length > HISTORY_MAX_ITEMS) {
-                    history = history.slice(0, HISTORY_MAX_ITEMS);
-                }
-                this.setHistory(history);
-            }
-        }
-
-        remove(item) {
-            let history = this.getHistory();
-            history = history.filter(h => h !== item);
-            this.setHistory(history);
-            this.renderList();
-        }
-
-        renderList() {
-            if (!this.listElement) return;
-            const history = this.getHistory();
-            this.listElement.innerHTML = '';
-
-            const filterText = this.inputElement.value.trim().toLowerCase();
-            const filteredHistory = history.filter(item => item.toLowerCase().includes(filterText));
-
-            filteredHistory.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.classList.add('history-item');
-
-                const textSpan = document.createElement('span');
-                textSpan.textContent = item;
-                textSpan.addEventListener('mousedown', (event) => {
-                    event.preventDefault(); // フォーカス外れを防ぐ
-                    this.inputElement.value = item;
-                    this.listElement.style.display = 'none';
-                    if (this.updateCallback) this.updateCallback();
-                });
-
-                const deleteButton = document.createElement('button');
-                deleteButton.innerHTML = '&times;';
-                deleteButton.title = '履歴から削除';
-                deleteButton.addEventListener('mousedown', (event) => {
-                    event.preventDefault(); // フォーカス外れを防ぐ
-                    event.stopPropagation();
-                    this.remove(item);
-                });
-
-                itemDiv.appendChild(textSpan);
-                itemDiv.appendChild(deleteButton);
-                this.listElement.appendChild(itemDiv);
-            });
-
-            this.listElement.style.display = filteredHistory.length > 0 ? 'block' : 'none';
-        }
-
-        initEvents() {
-            this.inputElement.addEventListener('input', () => {
-                this.renderList();
-                if (this.updateCallback) this.updateCallback();
-            });
-
-            this.inputElement.addEventListener('focus', () => {
-                this.renderList();
-            });
-
-            this.inputElement.addEventListener('blur', () => {
-                this.add(this.inputElement.value.trim());
-                if (this.listElement) {
-                    this.listElement.style.display = 'none';
-                }
-            });
-        }
-    }
-
     // 履歴マネージャーのインスタンス化
     const titleHistory = new HistoryManager('productTitleHistory', titleInput, titleHistoryListDiv, updatePreview);
     const notesHistory = new HistoryManager('productNotesHistory', notesTextarea, notesHistoryListDiv, updatePreview);
 
     // --- ユーティリティ ---
-    function calculateEan13CheckDigit(digits) {
-        if (digits.length !== 12) return null;
-        let sum = 0;
-        for (let i = 0; i < 12; i++) {
-            const digit = parseInt(digits[i], 10);
-            sum += (i % 2 === 0) ? digit : digit * 3;
-        }
-        return ((10 - (sum % 10)) % 10).toString();
-    }
-
-    function generateBarcodeValue(price, condition) {
-        price = parseInt(price, 10) || 0;
-        const baseNumber = condition === '中古' ? BARCODE_PREFIX_USED : BARCODE_PREFIX_NEW;
-        try {
-            const totalNumber = baseNumber + BigInt(price);
-            let barcodeDigits = totalNumber.toString().slice(-12).padStart(12, '0');
-            const checkDigit = calculateEan13CheckDigit(barcodeDigits);
-            if (checkDigit !== null) {
-                return barcodeDigits + checkDigit;
-            }
-        } catch (e) {
-            console.error("Barcode generation error:", e);
-        }
-        return null;
-    }
-
-    function renderBarcode(svgElement, finalBarcodeValue) {
-        if (finalBarcodeValue) {
-            JsBarcode(svgElement, finalBarcodeValue, {
-                format: "EAN13",
-                width: 1.5,
-                height: 25,
-                displayValue: true,
-                fontSize: 12,
-                margin: 5,
-                background: "transparent",
-                textPosition: "bottom",
-                textMargin: 2,
-                font: "Arial"
-            });
-            svgElement.style.display = 'block';
-        } else {
-            svgElement.style.display = 'none';
-        }
-    }
-
     function getFormattedTimestamp() {
         const now = new Date();
         const year = now.getFullYear();
@@ -424,25 +201,25 @@ document.addEventListener('DOMContentLoaded', () => {
         timestampDiv.textContent = getFormattedTimestamp();
 
         // スタンプの反映
-        if (currentStamp) {
-            previewStamp.textContent = currentStamp;
-            previewStamp.style.setProperty('--stamp-color', currentStampColor);
+        if (state.currentStamp) {
+            previewStamp.textContent = state.currentStamp;
+            previewStamp.style.setProperty('--stamp-color', state.currentStampColor);
             previewStamp.classList.add('active');
         } else {
             previewStamp.classList.remove('active');
         }
 
         // ダメージマップの反映
-        if (currentDamageMap && damageMapSVGs[currentDamageMap]) {
-            previewDamageMap.innerHTML = damageMapSVGs[currentDamageMap];
+        if (state.currentDamageMap && damageMapSVGs[state.currentDamageMap]) {
+            previewDamageMap.innerHTML = damageMapSVGs[state.currentDamageMap];
         } else {
             previewDamageMap.innerHTML = '';
         }
 
         // 復元用バーコードプレビューの制御
         const previewRestoreSvg = document.getElementById('restore-barcode');
-        if (editingProductCode) {
-            const restoreVal = generateRestoreBarcodeValue(editingProductCode, conditionSelect.value, currentStamp, currentDamageMap);
+        if (state.editingProductCode) {
+            const restoreVal = generateRestoreBarcodeValue(state.editingProductCode, conditionSelect.value, state.currentStamp, state.currentDamageMap);
             drawRestoreBarcode(previewRestoreSvg, restoreVal);
         } else {
             drawRestoreBarcode(previewRestoreSvg, null);
@@ -485,28 +262,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateQueueUI() {
         // 現在のキュー状態をlocalStorageに保存
-        localStorage.setItem('kagu-price-card-queue', JSON.stringify(printQueue));
+        saveQueueToLocalStorage();
 
-        queueCountSpan.textContent = printQueue.length;
+        queueCountSpan.textContent = state.printQueue.length;
         printQueueList.innerHTML = '';
         
         const selectAllCheckbox = document.getElementById('select-all-checkbox');
         if (selectAllCheckbox) {
-            selectAllCheckbox.checked = printQueue.length > 0 && printQueue.every(item => item.selected !== false);
+            selectAllCheckbox.checked = state.printQueue.length > 0 && state.printQueue.every(item => item.selected !== false);
             selectAllCheckbox.onchange = (e) => {
                 const isChecked = e.target.checked;
-                printQueue.forEach(item => item.selected = isChecked);
+                state.printQueue.forEach(item => item.selected = isChecked);
                 updateQueueUI();
             };
         }
 
-        printQueue.forEach((item, index) => {
+        state.printQueue.forEach((item, index) => {
             const li = document.createElement('li');
             li.draggable = true;
 
             // ドラッグ＆ドロップのイベント設定
             li.addEventListener('dragstart', (e) => {
-                draggedItemIndex = index;
+                state.draggedItemIndex = index;
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', index); // Firefox等で必要
                 setTimeout(() => li.style.opacity = '0.5', 0);
@@ -514,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             li.addEventListener('dragend', () => {
                 li.style.opacity = '1';
-                draggedItemIndex = null;
+                state.draggedItemIndex = null;
             });
 
             li.addEventListener('dragover', (e) => {
@@ -524,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             li.addEventListener('dragenter', (e) => {
                 e.preventDefault();
-                if (draggedItemIndex !== null && draggedItemIndex !== index) {
+                if (state.draggedItemIndex !== null && state.draggedItemIndex !== index) {
                     li.classList.add('drag-over');
                 }
             });
@@ -536,11 +313,11 @@ document.addEventListener('DOMContentLoaded', () => {
             li.addEventListener('drop', (e) => {
                 e.preventDefault();
                 li.classList.remove('drag-over');
-                if (draggedItemIndex === null || draggedItemIndex === index) return;
+                if (state.draggedItemIndex === null || state.draggedItemIndex === index) return;
 
                 // 配列内の順序を入れ替える
-                const draggedItem = printQueue.splice(draggedItemIndex, 1)[0];
-                printQueue.splice(index, 0, draggedItem);
+                const draggedItem = state.printQueue.splice(state.draggedItemIndex, 1)[0];
+                state.printQueue.splice(index, 0, draggedItem);
                 updateQueueUI();
             });
 
@@ -645,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
             editBtn.title = 'フォームに読み込む（再編集）';
             editBtn.onclick = () => {
                 // フォームに値を復元
-                editingProductCode = item.productCode || null;
+                state.editingProductCode = item.productCode || null;
                 titleInput.value = item.title;
                 titleFontSizeInput.value = item.titleFontSize;
                 conditionSelect.value = item.condition;
@@ -670,39 +447,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (notesFontSizeValueSpan) notesFontSizeValueSpan.textContent = item.notesFontSize;
 
                 // スタンプの復元
-                currentStamp = item.stampText || '';
+                state.currentStamp = item.stampText || '';
                 let matchedPreset = false;
                 stampButtons.forEach(b => {
                     b.classList.remove('selected');
-                    if (currentStamp && b.dataset.stamp === currentStamp) {
+                    if (state.currentStamp && b.dataset.stamp === state.currentStamp) {
                         b.classList.add('selected');
                         matchedPreset = true;
                     }
                 });
 
-                if (!currentStamp) {
+                if (!state.currentStamp) {
                     if (clearStampBtn) clearStampBtn.classList.add('selected');
                     if (customStampInput) customStampInput.value = '';
                 } else if (!matchedPreset) {
                     // プリセットにない文字なら自由入力欄に入れる
-                    if (customStampInput) customStampInput.value = currentStamp;
+                    if (customStampInput) customStampInput.value = state.currentStamp;
                 } else {
                     if (customStampInput) customStampInput.value = '';
                 }
 
                 // スタンプ色の復元
-                currentStampColor = item.stampColor || '#e60000';
+                state.currentStampColor = item.stampColor || '#e60000';
                 stampColorButtons.forEach(b => {
                     b.classList.remove('selected');
-                    if (b.dataset.color === currentStampColor) {
+                    if (b.dataset.color === state.currentStampColor) {
                         b.classList.add('selected');
                     }
                 });
 
                 // ダメージマップの復元
-                currentDamageMap = item.damageMap || '';
+                state.currentDamageMap = item.damageMap || '';
                 if (damageMapSelect) {
-                    damageMapSelect.value = currentDamageMap;
+                    damageMapSelect.value = state.currentDamageMap;
                 }
 
                 updatePreview();
@@ -718,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
             removeBtn.title = '削除';
             removeBtn.style.padding = '3px 8px'; // 少し小さめに
             removeBtn.onclick = () => {
-                printQueue.splice(index, 1);
+                state.printQueue.splice(index, 1);
                 updateQueueUI();
             };
             actionsDiv.appendChild(removeBtn);
@@ -729,8 +506,8 @@ document.addEventListener('DOMContentLoaded', () => {
             printQueueList.appendChild(li);
         });
 
-        const hasItems = printQueue.length > 0;
-        const hasSelectedItems = printQueue.some(item => item.selected !== false);
+        const hasItems = state.printQueue.length > 0;
+        const hasSelectedItems = state.printQueue.some(item => item.selected !== false);
         batchPrintButton.disabled = !hasSelectedItems;
         clearQueueButton.disabled = !hasItems;
         if (exportCsvButton) {
@@ -749,9 +526,9 @@ document.addEventListener('DOMContentLoaded', () => {
             notesFontSize: notesFontSizeInput.value,
             deliveryOptionText: deliveryOptionsSelect ? deliveryOptionsSelect.options[deliveryOptionsSelect.selectedIndex].text : '',
             price: parseInt(priceInput.value, 10),
-            stampText: currentStamp,
-            stampColor: currentStampColor,
-            damageMap: currentDamageMap
+            stampText: state.currentStamp,
+            stampColor: state.currentStampColor,
+            damageMap: state.currentDamageMap
         };
 
         // リスト追加前に IndexedDB 永久台帳に自動保存し、一意の商品コードを取得
@@ -762,16 +539,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 selected: true // 追加・更新時はデフォルトで選択状態
             };
 
-            if (editingProductCode) {
-                const idx = printQueue.findIndex(q => q.productCode === editingProductCode);
+            if (state.editingProductCode) {
+                const idx = state.printQueue.findIndex(q => q.productCode === state.editingProductCode);
                 if (idx !== -1) {
-                    printQueue[idx] = item;
+                    state.printQueue[idx] = item;
                 } else {
-                    printQueue.unshift(item);
+                    state.printQueue.unshift(item);
                 }
-                editingProductCode = null; // 編集完了したのでクリア
+                state.editingProductCode = null; // 編集完了したのでクリア
             } else {
-                printQueue.unshift(item); // 先頭に追加する
+                state.printQueue.unshift(item); // 先頭に追加する
             }
 
             updateQueueUI();
@@ -781,9 +558,9 @@ document.addEventListener('DOMContentLoaded', () => {
             notesTextarea.value = '';
             priceInput.value = '';
             if (priceBeforeTaxInput) priceBeforeTaxInput.value = '';
-            currentStamp = '';
-            currentStampColor = '#e60000';
-            currentDamageMap = '';
+            state.currentStamp = '';
+            state.currentStampColor = '#e60000';
+            state.currentDamageMap = '';
             stampButtons.forEach(b => b.classList.remove('selected'));
             if (clearStampBtn) clearStampBtn.classList.add('selected');
             if (customStampInput) customStampInput.value = '';
@@ -797,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (clearFormButton) {
         clearFormButton.addEventListener('click', () => {
-            editingProductCode = null;
+            state.editingProductCode = null;
             titleInput.value = '';
             titleFontSizeInput.value = '55'; // 初期値
             conditionSelect.selectedIndex = 0; // 中古
@@ -812,9 +589,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (notesFontSizeValueSpan) notesFontSizeValueSpan.textContent = '30';
             
             // スタンプのクリア
-            currentStamp = '';
-            currentStampColor = '#e60000';
-            currentDamageMap = '';
+            state.currentStamp = '';
+            state.currentStampColor = '#e60000';
+            state.currentDamageMap = '';
             stampButtons.forEach(b => b.classList.remove('selected'));
             if (clearStampBtn) clearStampBtn.classList.add('selected');
             if (customStampInput) customStampInput.value = '';
@@ -831,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     clearQueueButton.addEventListener('click', () => {
         if (confirm('印刷待ちリストをすべてクリアしますか？')) {
-            printQueue = [];
+            state.printQueue = [];
             updateQueueUI();
         }
         // リスト更新後に高さを同期
@@ -843,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CSV一括書き出し処理 ---
     function exportToCSV() {
-        if (printQueue.length === 0) return;
+        if (state.printQueue.length === 0) return;
 
         const headers = ['商品コード', '商品名', '金額', '状態', '備考', 'タイトルフォントサイズ', '備考フォントサイズ', '配送オプション', 'スタンプ', 'ダメージマップ', 'スタンプ色'];
         
@@ -858,7 +635,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const csvRows = [headers.map(escapeCSVField).join(',')];
 
-        printQueue.forEach(item => {
+        state.printQueue.forEach(item => {
             const row = [
                 item.productCode || '',
                 item.title || '',
@@ -894,71 +671,6 @@ document.addEventListener('DOMContentLoaded', () => {
         exportCsvButton.addEventListener('click', exportToCSV);
     }
 
-    // --- 復元用バーコード生成・描画ロジック ---
-    function getStampCode(stamp) {
-        if (!stamp) return '0';
-        if (stamp === 'NEW') return '1';
-        if (stamp === '値下げ!') return '2';
-        if (stamp === '美品') return '3';
-        if (stamp === '現品限り') return '4';
-        return '5'; // 自由入力
-    }
-
-    function getStampTextByCode(code) {
-        const map = {
-            '0': '',
-            '1': 'NEW',
-            '2': '値下げ!',
-            '3': '美品',
-            '4': '現品限り'
-        };
-        return map[code] !== undefined ? map[code] : null; // 5は自由入力のためnull(対応表にない)とし、台帳DBから取得
-    }
-
-    function getDamageMapCode(map) {
-        const maps = ['', 'sofa', 'chair', 'table', 'cabinet_tall', 'cabinet_wide', 'cupboard', 'bed', 'color_box', 'circle', 'rect_vertical', 'rect_horizontal', 'square'];
-        const idx = maps.indexOf(map);
-        return idx !== -1 ? String(idx).padStart(2, '0') : '00';
-    }
-
-    function getDamageMapByCode(code) {
-        const maps = ['', 'sofa', 'chair', 'table', 'cabinet_tall', 'cabinet_wide', 'cupboard', 'bed', 'color_box', 'circle', 'rect_vertical', 'rect_horizontal', 'square'];
-        const idx = parseInt(code, 10);
-        return (idx >= 0 && idx < maps.length) ? maps[idx] : '';
-    }
-
-    function generateRestoreBarcodeValue(productCode, condition, stamp, damageMap) {
-        const prefix = '209';
-        const conditionCode = condition === '中古' ? '1' : '2';
-        const stampCode = getStampCode(stamp);
-        const damageCode = getDamageMapCode(damageMap);
-        const pCode = String(productCode).padStart(5, '0');
-        
-        const base12 = prefix + conditionCode + stampCode + damageCode + pCode;
-        const checkDigit = calculateEan13CheckDigit(base12);
-        return checkDigit !== null ? base12 + checkDigit : null;
-    }
-
-    function drawRestoreBarcode(svgElement, codeValue) {
-        if (codeValue && svgElement) {
-            JsBarcode(svgElement, codeValue, {
-                format: "EAN13",
-                width: 1.5,          // 金額用と同じ大きさに変更
-                height: 16,          // 金額用の3分の2（25 -> 16）に縮小
-                displayValue: true,  // 金額用と同じ大きさに変更
-                fontSize: 12,        // 金額用と同じ大きさに変更
-                textMargin: 2,       // 金額用と同じ大きさに変更
-                margin: 5,           // 金額用と同じ大きさに変更
-                background: "transparent",
-                textPosition: "bottom",
-                font: "Arial"
-            });
-            svgElement.style.display = 'block';
-        } else if (svgElement) {
-            svgElement.style.display = 'none';
-        }
-    }
-
     // --- バーコードスキャンによるフォーム完全復元ロジック ---
     function restoreProductFromBarcode(barcodeValue) {
         // 13桁の復元用コード: 209 (0-2) + condition(3) + stamp(4) + damage(5-6) + productCode(7-11) + checkDigit(12)
@@ -976,9 +688,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const damageMap = getDamageMapByCode(damageMapCode);
 
                 conditionSelect.value = condition;
-                currentStamp = stampText;
-                currentDamageMap = damageMap;
-                editingProductCode = productCodeStr;
+                state.currentStamp = stampText;
+                state.currentDamageMap = damageMap;
+                state.editingProductCode = productCodeStr;
                 
                 // プリセットスタンプのUI選択状態を反映
                 stampButtons.forEach(b => {
@@ -997,7 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // IndexedDB 永久台帳から日本語を含む全パラメータを100%完全復元
-            editingProductCode = productCodeStr;
+            state.editingProductCode = productCodeStr;
             titleInput.value = product.title || '';
             titleFontSizeInput.value = product.titleFontSize || 50;
             conditionSelect.value = product.condition || '中古';
@@ -1021,37 +733,37 @@ document.addEventListener('DOMContentLoaded', () => {
             if (notesFontSizeValueSpan) notesFontSizeValueSpan.textContent = product.notesFontSize || 30;
 
             // スタンプの復元
-            currentStamp = product.stampText || '';
+            state.currentStamp = product.stampText || '';
             let matchedPreset = false;
             stampButtons.forEach(b => {
                 b.classList.remove('selected');
-                if (currentStamp && b.dataset.stamp === currentStamp) {
+                if (state.currentStamp && b.dataset.stamp === state.currentStamp) {
                     b.classList.add('selected');
                     matchedPreset = true;
                 }
             });
-            if (!currentStamp) {
+            if (!state.currentStamp) {
                 if (clearStampBtn) clearStampBtn.classList.add('selected');
                 if (customStampInput) customStampInput.value = '';
             } else if (!matchedPreset) {
-                if (customStampInput) customStampInput.value = currentStamp;
+                if (customStampInput) customStampInput.value = state.currentStamp;
             } else {
                 if (customStampInput) customStampInput.value = '';
             }
 
             // スタンプ色の復元
-            currentStampColor = product.stampColor || '#e60000';
+            state.currentStampColor = product.stampColor || '#e60000';
             stampColorButtons.forEach(b => {
                 b.classList.remove('selected');
-                if (b.dataset.color === currentStampColor) {
+                if (b.dataset.color === state.currentStampColor) {
                     b.classList.add('selected');
                 }
             });
 
             // ダメージマップの復元
-            currentDamageMap = product.damageMap || '';
+            state.currentDamageMap = product.damageMap || '';
             if (damageMapSelect) {
-                damageMapSelect.value = currentDamageMap;
+                damageMapSelect.value = state.currentDamageMap;
             }
 
             updatePreview();
@@ -1121,7 +833,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // 1行目からヘッダーのインデックスを特定
-        // BOMを除去しておく
         const headers = rows[0].map(h => h.trim().replace(/^\uFEFF/, ''));
         const productCodeIdx = headers.indexOf('商品コード');
         const titleIdx = headers.indexOf('商品名');
@@ -1252,7 +963,7 @@ document.addEventListener('DOMContentLoaded', () => {
             Promise.all(savePromises).then((importedItems) => {
                 const validItems = importedItems.filter(x => x && x.productCode);
                 if (validItems.length > 0) {
-                    printQueue = [...validItems, ...printQueue];
+                    state.printQueue = [...validItems, ...state.printQueue];
                     updateQueueUI();
                     alert(`${validItems.length}件の商品データをインポートし、復元用バーコードを登録・付与しました。`);
                 } else {
@@ -1336,7 +1047,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     batchPrintButton.addEventListener('click', () => {
-        const selectedItems = printQueue.filter(item => item.selected !== false);
+        const selectedItems = state.printQueue.filter(item => item.selected !== false);
         if (selectedItems.length === 0) return;
 
         printBatchContainer.innerHTML = '';
@@ -1385,9 +1096,9 @@ document.addEventListener('DOMContentLoaded', () => {
             notesFontSize: notesFontSizeInput.value,
             deliveryOptionText: deliveryOptionsSelect ? deliveryOptionsSelect.options[deliveryOptionsSelect.selectedIndex].text : '',
             price: parseInt(priceInput.value, 10),
-            stampText: currentStamp,
-            stampColor: currentStampColor,
-            damageMap: currentDamageMap
+            stampText: state.currentStamp,
+            stampColor: state.currentStampColor,
+            damageMap: state.currentDamageMap
         };
 
         saveProductToDB(itemData, (productCode) => {
@@ -1403,11 +1114,11 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 window.onafterprint = () => {
                     window.onafterprint = null;
-                    editingProductCode = null; // 印刷後に編集状態をクリア（新規作成状態に戻す）
+                    state.editingProductCode = null; // 印刷後に編集状態をクリア（新規作成状態に戻す）
                 };
                 window.print();
             }, 100);
-        }, editingProductCode);
+        }, state.editingProductCode);
     });
 
     // --- イベントリスナーの設定 ---
