@@ -189,7 +189,7 @@ body.is-batch-printing .price-card-template:not(:last-child) {
     background-color: var(--stamp-color, #e60000) !important;
     color: #ffffff !important;
     font-weight: 900 !important;
-    font-size: 13px !important;
+    font-size: 18px !important;
     transform: none !important; /* 垂直 */
     box-shadow: none !important;
     display: none !important;
