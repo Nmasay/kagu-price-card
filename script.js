@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('IndexedDB open error:', e.target.error);
     };
 
-    function saveProductToDB(productData, callback) {
+    function saveProductToDB(productData, callback, existingProductCode) {
         if (!db) {
             console.warn('Database not ready. Callback with fallback.');
             if (callback) callback(null);
@@ -24,7 +24,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const transaction = db.transaction(['products'], 'readwrite');
         const store = transaction.objectStore('products');
-        const request = store.add(productData);
+        
+        // 引数がない場合は現在編集中のグローバル変数をフォールバックして使用する
+        const codeToUse = existingProductCode || editingProductCode;
+
+        let request;
+        if (codeToUse) {
+            const id = parseInt(codeToUse, 10);
+            productData.id = id;
+            request = store.put(productData);
+            console.log(`[IndexedDB] 上書き保存実行 ID: ${id}`);
+        } else {
+            request = store.add(productData);
+            console.log(`[IndexedDB] 新規追加実行`);
+        }
+
         request.onsuccess = (e) => {
             const id = e.target.result;
             const productCode = String(id).padStart(5, '0');
@@ -99,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let draggedItemIndex = null; // ドラッグ中のアイテムインデックスを保持
     let currentStamp = ''; // 現在選択されているスタンプ
     let currentStampColor = '#e60000'; // 現在選択されているスタンプ色（デフォルト: 赤）
+    let editingProductCode = null; // 現在編集中の商品コード
 
     // --- スタンプボタンの初期化 ---
     const stampButtons = document.querySelectorAll('.stamp-btn');
@@ -423,6 +438,15 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             previewDamageMap.innerHTML = '';
         }
+
+        // 復元用バーコードプレビューの制御
+        const previewRestoreSvg = document.getElementById('restore-barcode');
+        if (editingProductCode) {
+            const restoreVal = generateRestoreBarcodeValue(editingProductCode, conditionSelect.value, currentStamp, currentDamageMap);
+            drawRestoreBarcode(previewRestoreSvg, restoreVal);
+        } else {
+            drawRestoreBarcode(previewRestoreSvg, null);
+        }
         
         if (isAutoFittingTitle) {
             isAutoFittingTitle = false;
@@ -621,6 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
             editBtn.title = 'フォームに読み込む（再編集）';
             editBtn.onclick = () => {
                 // フォームに値を復元
+                editingProductCode = item.productCode || null;
                 titleInput.value = item.title;
                 titleFontSizeInput.value = item.titleFontSize;
                 conditionSelect.value = item.condition;
@@ -734,9 +759,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = {
                 ...itemData,
                 productCode: productCode,
-                selected: true // 追加時はデフォルトで選択状態
+                selected: true // 追加・更新時はデフォルトで選択状態
             };
-            printQueue.unshift(item); // 先頭に追加する
+
+            if (editingProductCode) {
+                const idx = printQueue.findIndex(q => q.productCode === editingProductCode);
+                if (idx !== -1) {
+                    printQueue[idx] = item;
+                } else {
+                    printQueue.unshift(item);
+                }
+                editingProductCode = null; // 編集完了したのでクリア
+            } else {
+                printQueue.unshift(item); // 先頭に追加する
+            }
+
             updateQueueUI();
             
             // 追加後、入力フォームをクリア
@@ -760,6 +797,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (clearFormButton) {
         clearFormButton.addEventListener('click', () => {
+            editingProductCode = null;
             titleInput.value = '';
             titleFontSizeInput.value = '55'; // 初期値
             conditionSelect.selectedIndex = 0; // 中古
@@ -807,7 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function exportToCSV() {
         if (printQueue.length === 0) return;
 
-        const headers = ['商品名', '金額', '状態', '備考', 'タイトルフォントサイズ', '備考フォントサイズ', '配送オプション', 'スタンプ', 'ダメージマップ', 'スタンプ色'];
+        const headers = ['商品コード', '商品名', '金額', '状態', '備考', 'タイトルフォントサイズ', '備考フォントサイズ', '配送オプション', 'スタンプ', 'ダメージマップ', 'スタンプ色'];
         
         function escapeCSVField(field) {
             if (field === null || field === undefined) return '';
@@ -822,6 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         printQueue.forEach(item => {
             const row = [
+                item.productCode || '',
                 item.title || '',
                 isNaN(item.price) ? '' : item.price,
                 item.condition || '中古',
@@ -939,6 +978,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 conditionSelect.value = condition;
                 currentStamp = stampText;
                 currentDamageMap = damageMap;
+                editingProductCode = productCodeStr;
                 
                 // プリセットスタンプのUI選択状態を反映
                 stampButtons.forEach(b => {
@@ -957,6 +997,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // IndexedDB 永久台帳から日本語を含む全パラメータを100%完全復元
+            editingProductCode = productCodeStr;
             titleInput.value = product.title || '';
             titleFontSizeInput.value = product.titleFontSize || 50;
             conditionSelect.value = product.condition || '中古';
@@ -1082,6 +1123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1行目からヘッダーのインデックスを特定
         // BOMを除去しておく
         const headers = rows[0].map(h => h.trim().replace(/^\uFEFF/, ''));
+        const productCodeIdx = headers.indexOf('商品コード');
         const titleIdx = headers.indexOf('商品名');
         const priceIdx = headers.indexOf('金額');
         const conditionIdx = headers.indexOf('状態');
@@ -1102,6 +1144,11 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
             if (row.length === 1 && row[0].trim() === '') continue; // 空行スキップ
+
+            let productCode = '';
+            if (productCodeIdx !== -1 && row[productCodeIdx]) {
+                productCode = row[productCodeIdx].trim();
+            }
 
             const title = row[titleIdx] ? row[titleIdx].trim() : '';
             const priceStr = row[priceIdx] ? row[priceIdx].replace(/[^0-9]/g, '') : '';
@@ -1157,6 +1204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             newItems.push({
+                productCode: productCode || undefined,
                 title: title,
                 titleFontSize: titleFontSize,
                 condition: condition,
@@ -1172,8 +1220,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (newItems.length > 0) {
-            printQueue = [...newItems, ...printQueue];
-            updateQueueUI();
+            const savePromises = newItems.map(item => {
+                return new Promise((resolve) => {
+                    const itemData = {
+                        title: item.title,
+                        titleFontSize: item.titleFontSize,
+                        condition: item.condition,
+                        notes: item.notes,
+                        notesFontSize: item.notesFontSize,
+                        deliveryOptionText: item.deliveryOptionText,
+                        price: item.price,
+                        stampText: item.stampText,
+                        stampColor: item.stampColor,
+                        damageMap: item.damageMap
+                    };
+
+                    if (item.productCode) {
+                        saveProductToDB(itemData, (assignedCode) => {
+                            item.productCode = assignedCode;
+                            resolve(item);
+                        }, item.productCode);
+                    } else {
+                        saveProductToDB(itemData, (assignedCode) => {
+                            item.productCode = assignedCode;
+                            resolve(item);
+                        });
+                    }
+                });
+            });
+
+            Promise.all(savePromises).then((importedItems) => {
+                const validItems = importedItems.filter(x => x && x.productCode);
+                if (validItems.length > 0) {
+                    printQueue = [...validItems, ...printQueue];
+                    updateQueueUI();
+                    alert(`${validItems.length}件の商品データをインポートし、復元用バーコードを登録・付与しました。`);
+                } else {
+                    alert('データベースへの登録に失敗しました。');
+                }
+            }).catch(err => {
+                console.error("Promise.all error during import:", err);
+                alert('インポート処理中にエラーが発生しました。');
+            });
         } else {
             alert('有効なデータがありませんでした。');
         }
@@ -1298,6 +1386,7 @@ document.addEventListener('DOMContentLoaded', () => {
             deliveryOptionText: deliveryOptionsSelect ? deliveryOptionsSelect.options[deliveryOptionsSelect.selectedIndex].text : '',
             price: parseInt(priceInput.value, 10),
             stampText: currentStamp,
+            stampColor: currentStampColor,
             damageMap: currentDamageMap
         };
 
@@ -1314,10 +1403,11 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 window.onafterprint = () => {
                     window.onafterprint = null;
+                    editingProductCode = null; // 印刷後に編集状態をクリア（新規作成状態に戻す）
                 };
                 window.print();
             }, 100);
-        });
+        }, editingProductCode);
     });
 
     // --- イベントリスナーの設定 ---
