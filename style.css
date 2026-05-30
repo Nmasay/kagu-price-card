@@ -501,7 +501,7 @@ button {
     align-items: center;
     justify-content: flex-start;
     text-align: center;
-    padding: 12px 0 16px 0;  /* 上部パディングを12pxに調整し、上端からの適度な美しい隙間を確保 */
+    padding: 26px 0 16px 0;  /* 上部パディングを12pxに調整し、上端からの適度な美しい隙間を確保 */
     overflow: hidden;
     white-space: nowrap;
     -webkit-print-color-adjust: exact;
