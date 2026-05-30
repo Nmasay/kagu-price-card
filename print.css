@@ -163,7 +163,7 @@ body.is-batch-printing .price-card-template:not(:last-child) {
 /* ダメージマップ印刷用スタイル */
 .damage-map-container {
     position: absolute !important;
-    bottom: 12px !important;
+    bottom: 22px !important;
     left: 80mm !important; /* 金額の右隣に指定位置で固定 */
     width: 30mm !important; /* サイズを指定変更 */
     height: 30mm !important; /* サイズを指定変更 */
