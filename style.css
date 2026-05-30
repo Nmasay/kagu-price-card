@@ -482,10 +482,10 @@ button {
     box-sizing: border-box;
     position: absolute;
     top: 0;                 /* カードの最上端にぴったり配置 */
-    right: 14px;            /* カードの右端から14pxの位置に配置 */
+    right: 4mm;            /* カードの右端から14pxの位置に配置 */
     left: auto;
-    width: 28px;            /* 縦書きにフィットするスマートな幅 */
-    height: 4.5cm;          /* 商品タイトル行(2cm)を超えて下部へ垂れ下がる3.5cmの長さ */
+    width: 8mm;            /* 縦書きにフィットするスマートな幅 */
+    height: 40mm;          /* 商品タイトル行(2cm)を超えて下部へ垂れ下がる3.5cmの長さ */
     background-color: var(--stamp-color, #e60000); /* 鮮やかな赤いライン */
     color: #ffffff;         /* 白文字 */
     font-weight: 900;       /* 太めのフォント */
