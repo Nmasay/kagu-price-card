@@ -10,7 +10,6 @@
 html {
     margin: 0 !important;
     padding: 0 !important;
-    height: 100% !important;
 }
 
 body {
@@ -28,10 +27,10 @@ body.is-batch-printing {
     height: auto !important;
 }
 
-/* 個別印刷時は絶対に1ページに強制するため hidden と 100% 高さを指定 */
+/* 個別印刷時は絶対に1ページに強制するため hidden を指定（高さは自動にしてはみ出しを防ぐ） */
 body:not(.is-batch-printing) {
     overflow: hidden !important;
-    height: 100% !important;
+    height: auto !important;
 }
 
 /* 印刷時はプレビュー用の青いラインを非表示にする */
@@ -107,7 +106,7 @@ body:not(.is-batch-printing) #preview-container {
 }
 
 body:not(.is-batch-printing) #price-card {
-    position: relative !important; /* absoluteからrelativeへ変更。コンテナのフローに従わせる */
+    position: absolute !important; /* コンテナのフローから外し、用紙左上に固定 */
     left: 0 !important;
     top: 0 !important;
 }
