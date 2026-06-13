@@ -49,23 +49,13 @@ body:not(.is-batch-printing) {
     display: none !important;
 }
 
-/* 個別印刷時：コンテナの幅制限や余白を完全に解除 */
+/* 個別印刷時：親要素の影響を完全に排除するため display: contents を指定 */
 body:not(.is-batch-printing) .container {
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    display: block !important;
+    display: contents !important;
 }
 
 body:not(.is-batch-printing) .preview-column {
-    display: block !important;
-    width: 100% !important;
-    height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    gap: 0 !important;
+    display: contents !important;
 }
 
 /* 一括印刷時：コンテナ全体を完全に非表示にし、一切のスペースを取らせない */
@@ -98,11 +88,7 @@ body:not(.is-batch-printing) #price-card * {
 }
 
 body:not(.is-batch-printing) #preview-container {
-    display: block !important;
-    position: static !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background-color: transparent !important;
+    display: contents !important;
 }
 
 body:not(.is-batch-printing) #price-card {
