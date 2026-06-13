@@ -12,6 +12,11 @@
     --danger-hover: #a71d2a;
     --card-bg: #fff;
     --list-hover-bg: #f0f0f0;
+    --accent-blue: #1979ff;
+    --stamp-red: #e60000;
+    --info-color: #17a2b8;
+    --drag-over-bg: #f0f8ff;
+    --muted-text: #888;
 }
 
 body {
@@ -28,7 +33,6 @@ body {
 
 .container {
     max-width: 1400px;
-    /* 3カラムのために広げる */
     margin: 20px auto;
     background: var(--bg-overlay);
     padding: 20px;
@@ -46,11 +50,9 @@ h2 {
 
 .preview-column {
     flex: 0 0 auto;
-    /* 横幅はプレビューのサイズに合わせる（伸びない） */
     display: flex;
     flex-direction: column;
     gap: 10px;
-    /* パネル間の隙間を狭める */
 }
 
 #preview-container {
@@ -58,7 +60,7 @@ h2 {
     justify-content: center;
     align-items: center;
     padding: 20px;
-    background-color: #1979ff;
+    background-color: var(--accent-blue);
     border-radius: 5px;
     flex-shrink: 0;
 }
@@ -104,8 +106,7 @@ h2 {
     word-break: break-word;
     line-height: 1.1;
     padding-top: 20px;
-    border-bottom: 10px solid #1979ff;
-    /* プレビュー用ガイドライン（枠の半分の太さ） */
+    border-bottom: 10px solid var(--accent-blue);
 }
 
 /* --- 入力履歴リストのスタイル --- */
@@ -172,7 +173,6 @@ h2 {
 
 .condition-row {
     position: relative;
-    /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
     min-height: 2.0cm;
     height: auto;
     color: red;
@@ -180,19 +180,14 @@ h2 {
     font-size: 55px;
     justify-content: flex-start;
     padding-left: 30px;
-    /* 【追加】青枠との被りを防ぐため、少し右へ寄せる */
     padding-right: 40px;
     padding-top: 15px;
-    /* 【変更】さらに少し上に上げるため、20px から 15px に変更 */
 }
 
 .notes-row {
     position: relative;
-    /* 【追加】疑似要素（仕切り線）の配置基準点にするため追加 */
     height: 1.6cm;
-    /* 【変更】文字数に応じた自動縮小判定のため高さを1.6cmに固定 */
     overflow: hidden;
-    /* 【追加】はみ出し時のスクロールバー表示を防ぐ */
     color: blue;
     font-size: 30px;
     justify-content: flex-start;
@@ -203,7 +198,6 @@ h2 {
     white-space: pre-wrap;
     word-break: break-all;
     flex-shrink: 0;
-    /* 縮小されて文字が重なるのを防ぐ */
 }
 
 /* --- プレビュー用：状態行・備考行の下の、両端が途切れた細い青ライン --- */
@@ -213,12 +207,9 @@ h2 {
     position: absolute;
     bottom: 0;
     left: 30px;
-    /* さらに短くするため、15px から 30px に余白を拡大 */
     right: 30px;
-    /* さらに短くするため、15px から 30px に余白を拡大 */
     height: 2px;
-    /* 青い細い線 */
-    background-color: #1979ff;
+    background-color: var(--accent-blue);
     z-index: 5;
 }
 
@@ -246,23 +237,18 @@ h2 {
     height: auto;
     font-weight: bold;
     font-size: 75px;
-    /* 60px から 75px へ拡大（一回り大きく） */
     justify-content: flex-start;
     padding-left: 30px;
     padding-bottom: 45px;
-    /* 20px から 45px へ拡張し、金額を上にスライド */
     white-space: nowrap;
     flex-grow: 1;
-    /* 余ったスペースを下部で吸収 */
 }
 
 /* バーコード */
 .barcode-svg {
     position: absolute;
     top: 125px;
-    /* 【変更】日付と中古の上部揃え再調整として、115px から 125px に下げ */
     right: 45px;
-    /* 右端の縦型バーコードと被らないように少し左へずらす */
     width: auto;
     z-index: 10;
 }
@@ -271,9 +257,7 @@ h2 {
 .timestamp-div {
     position: absolute;
     top: 105px;
-    /* 【変更】プレビュー時は「中古」の文字上部と揃えるため、95px から 105px に下げ */
     right: 45px;
-    /* バーコードの右端と揃える */
     font-size: 14px;
     color: #666;
     z-index: 10;
@@ -285,7 +269,6 @@ h2 {
     bottom: 38px;
     right: 5px;
     width: 130px;
-    /* 【追加】"＿＿＿"が消えても全体の左端の位置をキープするため、幅を130pxに固定 */
     font-size: 10pt;
     color: #333;
     z-index: 10;
@@ -388,11 +371,8 @@ button {
 
 .action-button {
     width: 155px;
-    /* 全ての主要ボタンをこのサイズに統一 */
     padding: 10px 0;
-    /* 文字が入りきるように左右パディングを詰める */
     text-align: center;
-    font-size: 16px;
     box-sizing: border-box;
 }
 
@@ -434,11 +414,9 @@ button {
 }
 
 /* --- 印刷待ちキュー --- */
+/* .queue-section と #print-queue-section は同一要素（id優先のため幅は320pxで統一） */
 .queue-section {
-    flex: 0 0 360px;
-    /* ボタン2つ（155px×2+10px）がピッタリ収まる固定幅 */
     box-sizing: border-box;
-    /* パディングを含めて幅を計算させる（はみ出し防止） */
     padding: 20px;
     background: #f9f9f9;
     border-radius: 8px;
@@ -491,7 +469,7 @@ button {
 
 #print-queue-list li {
     background: white;
-    border: 3px solid #0056b3;
+    border: 3px solid var(--primary-hover);
     margin-bottom: 8px;
     padding: 8px 10px;
     display: flex;
@@ -529,8 +507,8 @@ button {
 }
 
 #print-queue-list li.drag-over {
-    border-top: 2px dashed #007bff;
-    background-color: #f0f8ff;
+    border-top: 2px dashed var(--primary-color);
+    background-color: var(--drag-over-bg);
 }
 
 .queue-item-checkbox {
@@ -622,7 +600,7 @@ button {
     padding: 6px 12px;
     border: none;
     border-radius: 20px;
-    background-color: #e60000;
+    background-color: var(--stamp-red);
     color: white;
     font-weight: bold;
     font-size: 13px;
@@ -666,31 +644,22 @@ button {
 .damage-map-container {
     position: absolute;
     bottom: 12px;
-    /* 下部から少し浮かせた位置 */
     left: 80mm;
-    /* 金額の右隣（80mm）に指定位置で固定 */
     width: 30mm;
-    /* サイズを30mmに指定変更 */
     height: 30mm;
-    /* サイズを30mmに指定変更 */
     z-index: 5;
-    /* 背景とテキストの邪魔にならない重ね順 */
     display: flex;
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    /* 操作の邪魔をしない */
 }
 
 .damage-map-container svg {
     width: 100%;
     height: 100%;
     stroke: #b0b0b0;
-    /* うすいグレーの線 */
     fill: none;
-    /* 塗りつぶしなし */
     stroke-width: 1.5px;
-    /* 線の太さ */
     stroke-linecap: round;
     stroke-linejoin: round;
 }
@@ -699,15 +668,10 @@ button {
 .restore-barcode-wrapper {
     position: absolute;
     top: 250px;
-    /* 逆L字（Γ字型）の接続にするため、垂直位置を250pxに引き下げ */
     right: -54px;
-    /* 右側へ寄せて金額バーコードとの被りを解消するための補正値 */
     width: 153px;
-    /* 金額バーコードの横幅（JsBarcode幅1.5）に対応 */
     height: 40px;
-    /* バーの高さ16に伴う全体の厚み（約40px）に対応 */
     transform: translateY(-50%) rotate(90deg);
-    /* 180度反転した縦向き */
     transform-origin: center center;
     z-index: 9999;
     display: flex;
@@ -727,14 +691,14 @@ button {
     width: 100%;
     padding: 8px;
     border-radius: 4px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     font-size: 14px;
     box-sizing: border-box;
     transition: border-color 0.2s;
 }
 
 #restore-barcode-input:focus {
-    border-color: #17a2b8;
+    border-color: var(--info-color);
     outline: none;
     box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.25);
 }
@@ -796,12 +760,7 @@ button {
 #ledger-search-input {
     width: 100%;
     padding: 8px 30px 8px 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 14px;
     box-sizing: border-box;
-    background: #fff;
-    color: #000;
 }
 
 .search-clear-btn {
@@ -813,7 +772,7 @@ button {
     border: none;
     font-size: 16px;
     cursor: pointer;
-    color: #888;
+    color: var(--muted-text);
     padding: 0 4px;
     line-height: 1;
     display: none;
@@ -823,13 +782,18 @@ button {
     color: #333;
 }
 
+/* 台帳フィルター入力：共通スタイル */
+#ledger-search-input,
 #ledger-condition-filter {
-    padding: 8px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 14px;
     background: #fff;
     color: #000;
+}
+
+#ledger-condition-filter {
+    padding: 8px;
 }
 
 .ledger-table-wrapper {
