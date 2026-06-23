@@ -1,6 +1,6 @@
 // --- 定数 (Constants) ---
-export const BARCODE_PREFIX_USED = 20438000000n;
-export const BARCODE_PREFIX_NEW = 20451000000n;
+export const BARCODE_PREFIX_USED = 20411000000n;
+export const BARCODE_PREFIX_NEW = 20412000000n;
 export const HISTORY_MAX_ITEMS = 100;
 
 // --- ダメージマップのSVG定義 ---
