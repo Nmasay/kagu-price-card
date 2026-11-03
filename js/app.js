@@ -245,18 +245,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const previewColumn = document.querySelector('.preview-column');
         const queueSection = document.getElementById('print-queue-section');
         
-        if (form && previewColumn && queueSection) {
+        if (form && previewColumn) {
             // リセットして正確な元の高さを測る
             form.style.minHeight = 'auto';
             previewColumn.style.minHeight = 'auto';
-            queueSection.style.height = 'auto';
+            if (queueSection) queueSection.style.height = 'auto';
             
             // 画面下のラインを完璧に揃えるため、入力フォームと中央プレビューのうち背が高い方に高さを合わせる
             const maxHeight = Math.max(form.offsetHeight, previewColumn.offsetHeight);
             
             form.style.minHeight = maxHeight + 'px';
             previewColumn.style.minHeight = maxHeight + 'px';
-            queueSection.style.height = maxHeight + 'px';
+            if (queueSection && state.printQueue.length > 0) {
+                queueSection.style.height = maxHeight + 'px';
+            }
         }
     }
 
@@ -507,6 +509,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         const hasItems = state.printQueue.length > 0;
+        const container = document.querySelector('.container');
+        if (container) {
+            container.classList.toggle('queue-empty', !hasItems);
+        }
+
         const hasSelectedItems = state.printQueue.some(item => item.selected !== false);
         batchPrintButton.disabled = !hasSelectedItems;
         clearQueueButton.disabled = !hasItems;
@@ -799,6 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- CSV一括読み込み処理 ---
     const importCsvButton = document.getElementById('import-csv-button');
+    const formImportCsvButton = document.getElementById('form-import-csv-button');
     const csvFileInput = document.getElementById('csv-file-input');
 
     // 簡易CSVパーサー
@@ -985,6 +993,12 @@ document.addEventListener('DOMContentLoaded', () => {
         importCsvButton.addEventListener('click', () => {
             csvFileInput.click();
         });
+
+        if (formImportCsvButton) {
+            formImportCsvButton.addEventListener('click', () => {
+                csvFileInput.click();
+            });
+        }
 
         csvFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
