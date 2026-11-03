@@ -430,14 +430,9 @@ button {
     flex-direction: column;
 }
 
-/* 印刷待ちリストが空のときは右カラムを閉じ、左・中央の2カラムを大きく表示 */
+/* 印刷待ちリストが空のときは右カラムを閉じる */
 .container.queue-empty #print-queue-section {
     display: none;
-}
-
-.container.queue-empty #input-form,
-.container.queue-empty .preview-column {
-    flex: 1;
 }
 
 /* 右カラム表示時はフォーム側のCSV読み込みボタンを非表示にして重複を防ぐ */
